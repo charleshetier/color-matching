@@ -1,6 +1,6 @@
 import React from 'react';
 import './App.css';
-import { ColorChecker } from './ColorChecker';
+import { ColorChecker } from './color-checker';
 
 const App: React.FC = () => {
   return (
