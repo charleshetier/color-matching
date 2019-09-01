@@ -3,8 +3,6 @@ import './color-checker.scss';
 import { WorkspaceContext } from './WorkspaceContext';
 import { Widget } from './Widget';
 
-const log = (value: any) => {console.log(value); return value; };
-
 export const ColorChecker = () => {
     const [dimensions, setDimensions] = useState({width: 0, height:0, outdated: true});
 
