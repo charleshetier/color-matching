@@ -1,0 +1,87 @@
+html,
+body {
+  height: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+#root {
+    height: 100%;
+
+  > .App {
+    height: 100%;
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    grid-auto-rows: 100%;
+    grid-template-areas: "list viewport";
+
+    > section {
+    height: 100%;
+
+      &.list {
+        grid-area: "list";
+        position: relative;
+
+        > ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+
+            >li {
+                margin: 10px;
+                padding: 0;
+
+                >img {
+                    width: 180px;
+                }
+            }
+        }
+      }
+
+      &.viewport {
+        grid-area: "viewport";
+        position: relative;
+
+        >.workspace {
+            $length: 10px;
+
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+
+            box-sizing: content-box;
+            border: none;
+            color: rgba(255,255,255,1);
+            text-overflow: clip;
+            background: linear-gradient(45deg, rgba(0,0,0,0.0980392) 25%, rgba(0,0,0,0) 25%, rgba(0,0,0,0) 75%, rgba(0,0,0,0.0980392) 75%, rgba(0,0,0,0.0980392) 0), linear-gradient(45deg, rgba(0,0,0,0.0980392) 25%, rgba(0,0,0,0) 25%, rgba(0,0,0,0) 75%, rgba(0,0,0,0.0980392) 75%, rgba(0,0,0,0.0980392) 0), rgb(255, 255, 255);
+            background-position: 0 0, $length $length;
+            background-origin: padding-box;
+            background-clip: border-box;
+            background-size: $length*2 $length*2;
+        }
+
+        > aside {
+            &.properties {
+                position: absolute;
+                right: 0;
+                top: 0;
+                bottom: 0;
+                width: 200px;
+
+                border-left: 1px solid #333;
+
+                background-color: rgba(0,0,0,0.8);
+
+                color: white;
+
+                > .content {
+                    margin: 5px;
+                }
+            }
+        }
+      }
+    }
+  }
+}

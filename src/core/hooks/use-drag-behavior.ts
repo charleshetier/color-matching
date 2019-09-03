@@ -25,13 +25,17 @@ export function useDragBehavior<TElement extends Element>(ref: RefObject<TElemen
             //const mouseLeave$ = fromEvent<MouseEvent>(window, 'mouseleave');
 
             mouseDown$.pipe(
-                switchMap(downEvent => mouseMove$.pipe(
+                map(downEvent => ({
+                    downEvent,
+                    boundsInit: element.getBoundingClientRect()
+                })),
+                switchMap(downEventContext => mouseMove$.pipe(
                     combineLatest([context$.pipe(distinctUntilChanged())]),
                     takeUntil(mouseUp$),
                     map(all => ({ moveEvent: all[0], context: all[1] })),
                     map(all => ({
                         moveEvent: all.moveEvent,
-                        downEvent,
+                        ...downEventContext,
                         bounds: element.getBoundingClientRect(),
                         context: all.context
                     }))
@@ -43,8 +47,8 @@ export function useDragBehavior<TElement extends Element>(ref: RefObject<TElemen
                     y: o.downEvent.clientY - o.bounds.top
                 },
                 clientDelta: {
-                    x: o.moveEvent.clientX - o.bounds.left,
-                    y: o.moveEvent.clientY - o.bounds.top
+                    x: o.moveEvent.clientX - o.bounds.left + o.boundsInit.left - o.downEvent.clientX,
+                    y: o.moveEvent.clientY - o.bounds.top + o.boundsInit.top - o.downEvent.clientY
                 }
             }), o.context));
         }
