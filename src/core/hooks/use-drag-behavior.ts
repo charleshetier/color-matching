@@ -1,6 +1,6 @@
 import { BehaviorSubject, fromEvent } from "rxjs";
-import {RefObject, useRef, useEffect} from 'react';
-import { switchMap, combineLatest, distinctUntilChanged, takeUntil, map } from 'rxjs/operators';
+import { RefObject, useRef, useEffect } from 'react';
+import { switchMap, combineLatest, distinctUntilChanged, takeUntil, map, tap } from 'rxjs/operators';
 
 export function useDragBehavior<TElement extends Element>(ref: RefObject<TElement>, handler: (param: {
     moveEvent: MouseEvent,
@@ -10,19 +10,23 @@ export function useDragBehavior<TElement extends Element>(ref: RefObject<TElemen
     clientDelta: { x: number, y: number },
 }, context?: any) => void, dependancies: any[] = []) {
 
-    const {current: context$} = useRef(new BehaviorSubject<any>(dependancies[0]));
-    const {current: handler$} = useRef(new BehaviorSubject(handler));
+    const { current: context$ } = useRef(new BehaviorSubject<any>(dependancies[0]));
+    const { current: handler$ } = useRef(new BehaviorSubject(handler));
     context$.next(dependancies[0]);
     handler$.next(handler);
 
     useEffect(() => {
-        
+
         if (ref.current) {
             const element = ref.current;
-            const mouseDown$ = fromEvent<MouseEvent>(element, 'mousedown');
-            const mouseUp$ = fromEvent<MouseEvent>(window, 'mouseup');
-            const mouseMove$ = fromEvent<MouseEvent>(window, 'mousemove');
-            //const mouseLeave$ = fromEvent<MouseEvent>(window, 'mouseleave');
+            const mouseConstraintsPipe = tap((e: MouseEvent) => {
+                e.preventDefault();
+                e.stopPropagation();
+            })
+            const mouseDown$ = fromEvent<MouseEvent>(element, 'mousedown').pipe(mouseConstraintsPipe);
+            const mouseUp$ = fromEvent<MouseEvent>(window, 'mouseup').pipe(mouseConstraintsPipe);
+            const mouseMove$ = fromEvent<MouseEvent>(window, 'mousemove').pipe(mouseConstraintsPipe);
+            //const mouseLeave$ = fromEvent<MouseEvent>(window, 'mouseleave').pipe(mouseConstraintsPipe);
 
             mouseDown$.pipe(
                 map(downEvent => ({
@@ -52,7 +56,7 @@ export function useDragBehavior<TElement extends Element>(ref: RefObject<TElemen
                 }
             }), o.context));
         }
-    // eslint-disable-next-line
+        // eslint-disable-next-line
     }, [context$, handler$]);
 
     return ref;

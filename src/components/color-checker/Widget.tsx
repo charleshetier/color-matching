@@ -1,6 +1,6 @@
 import React, { useContext, createRef, useState } from 'react';
-import { WorkspaceContext } from './WorkspaceContext';
-import { useDragBehavior } from '../core/hooks';
+import { WorkspaceContext } from 'context';
+import { useDragBehavior } from 'core/hooks';
 
 interface UV { u: number, v: number }
 
@@ -82,7 +82,10 @@ const Item = (props: {
     uv: UV
 }) => {
 
+    const workspaceContext = useContext(WorkspaceContext);
+
     return <circle className="item"
+        r={5 * workspaceContext.scale}
         fill={`rgb(${props.color.join(',')})`}
         cx={`${props.uv.u * 100}%`}
         cy={`${props.uv.v * 100}%`}></circle>;
@@ -98,12 +101,12 @@ const Handle = (props: {
     const ref = useDragBehavior<SVGCircleElement>(createRef(), (e, context: typeof workspaceContext) => {
 
         props.onMove({
-            u: props.uv.u + e.clientDelta.x / context.width,
-            v: props.uv.v + e.clientDelta.y / context.height
+            u: props.uv.u + e.clientDelta.x / (context.width * context.scale),
+            v: props.uv.v + e.clientDelta.y / (context.height * context.scale)
         });
 
     }, [workspaceContext]);
 
-    return <circle ref={ref} className="handle" cx={`${props.uv.u * 100}%`} cy={`${props.uv.v * 100}%`}></circle>;
+    return <circle ref={ref} className="handle" r={8 * workspaceContext.scale} cx={`${props.uv.u * 100}%`} cy={`${props.uv.v * 100}%`}></circle>;
 
 };

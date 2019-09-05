@@ -21,6 +21,9 @@ body {
       &.list {
         grid-area: "list";
         position: relative;
+        z-index: 10;
+
+        background: #222;
 
         > ul {
             list-style: none;
@@ -30,6 +33,8 @@ body {
             >li {
                 margin: 10px;
                 padding: 0;
+                border-radius: 3px;
+                overflow: hidden;
 
                 >img {
                     width: 180px;
@@ -41,6 +46,8 @@ body {
       &.viewport {
         grid-area: "viewport";
         position: relative;
+        z-index: 0;
+        background: #444;
 
         >.workspace {
             $length: 10px;
@@ -51,6 +58,8 @@ body {
             top: 0;
             left: 0;
 
+            box-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+
             box-sizing: content-box;
             border: none;
             color: rgba(255,255,255,1);
@@ -60,6 +69,11 @@ body {
             background-origin: padding-box;
             background-clip: border-box;
             background-size: $length*2 $length*2;
+
+            >img {
+              width: 100%;
+              height: 100%;
+            }
         }
 
         > aside {

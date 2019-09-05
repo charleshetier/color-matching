@@ -1,9 +1,7 @@
 import React from 'react';
 import './App.scss';
-import { ColorChecker } from './color-checker';
-
-// const { ipcRenderer } = require('electron');
-// console.log(ipcRenderer);
+import { ColorChecker } from 'components/color-checker';
+import { ViewPort } from './components/viewport/Viewport';
 
 const App: React.FC = () => {
   return (
@@ -14,17 +12,10 @@ const App: React.FC = () => {
           <li><img alt="sample2" src="./samples/sample2.jpg" /></li>
         </ul>
       </section>
-      <section className="viewport">
-        <div className="workspace">
-          <img alt="sample1" src="./samples/sample1.jpg" />
-          <ColorChecker />
-        </div>
-        <aside className="properties">
-          <div className="content">
-            Hello properties
-          </div>
-        </aside>
-      </section>
+      <ViewPort>
+        <img alt="sample1" src="./samples/sample1.jpg" />
+        <ColorChecker />
+      </ViewPort>
     </div>
   );
 }
