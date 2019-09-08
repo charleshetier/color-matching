@@ -85,7 +85,7 @@ const Item = (props: {
     const workspaceContext = useContext(WorkspaceContext);
 
     return <circle className="item"
-        r={5 * workspaceContext.scale}
+        r={5 * workspaceContext!.scale}
         fill={`rgb(${props.color.join(',')})`}
         cx={`${props.uv.u * 100}%`}
         cy={`${props.uv.v * 100}%`}></circle>;
@@ -101,12 +101,12 @@ const Handle = (props: {
     const ref = useDragBehavior<SVGCircleElement>(createRef(), (e, context: typeof workspaceContext) => {
 
         props.onMove({
-            u: props.uv.u + e.clientDelta.x / (context.width * context.scale),
-            v: props.uv.v + e.clientDelta.y / (context.height * context.scale)
+            u: props.uv.u + e.clientDelta.x / (context!.width * context!.scale),
+            v: props.uv.v + e.clientDelta.y / (context!.height * context!.scale)
         });
 
     }, [workspaceContext]);
 
-    return <circle ref={ref} className="handle" r={8 * workspaceContext.scale} cx={`${props.uv.u * 100}%`} cy={`${props.uv.v * 100}%`}></circle>;
+    return <circle ref={ref} className="handle" r={8 * workspaceContext!.scale} cx={`${props.uv.u * 100}%`} cy={`${props.uv.v * 100}%`}></circle>;
 
 };

@@ -28,7 +28,7 @@ function createWindow() {
     callback({
       responseHeaders: {
         ...details.responseHeaders,
-        'Content-Security-Policy': (isDev ? ['default-src \'self\' \'unsafe-inline\' http://localhost:3000'] : ['default-src \'self\''])
+        'Content-Security-Policy': (isDev ? ['img-src blob: \'self\' \'unsafe-inline\' http://localhost:3000'] : ['default-src \'self\' blob:'])
       }
     })
   })
