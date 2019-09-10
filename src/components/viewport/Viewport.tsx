@@ -1,10 +1,11 @@
 import React, { createRef, useState } from 'react';
 import { useDragBehavior } from 'core/hooks';
-import { WorkspaceContext } from 'context';
+import { useCurrentImage } from 'store';
 
 export const ViewPort = (props: { children: any }) => {
 
-    const [workspace, setWorkspace] = useState({ x: 0, y: 0, width: 568, height: 379, scale: 1 });
+    const [workspace, setWorkspace] = useState({ x: 0, y: 0, scale: 1 });
+    const currentImage = useCurrentImage();
 
     const ref = useDragBehavior<HTMLDivElement>(createRef(), (e, context) => {
         setWorkspace({
@@ -14,19 +15,20 @@ export const ViewPort = (props: { children: any }) => {
         })
     });
 
+    const width = currentImage ? currentImage.width* workspace.scale : 600;
+    const height = currentImage ? currentImage.height* workspace.scale : 600;
+
     const workspaceStyle = {
         left: `${workspace.x}px`,
         top: `${workspace.y}px`,
-        width: `${workspace.width * workspace.scale}px`,
-        height: `${workspace.height * workspace.scale}px`
+        width: `${width}px`,
+        height: `${height}px`
     };
 
     return <section className="viewport">
-        <WorkspaceContext.Provider value={workspace}>
             <div ref={ref} style={workspaceStyle} className="workspace">
                 {props.children}
             </div>
-        </WorkspaceContext.Provider>
         <aside className="properties">
             <div className="content">
                 Hello properties

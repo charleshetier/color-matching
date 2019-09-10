@@ -1,6 +1,6 @@
-import React, { useContext, createRef, useState } from 'react';
-import { WorkspaceContext } from 'context';
+import React, { createRef, useState } from 'react';
 import { useDragBehavior } from 'core/hooks';
+import { useCurrentImage } from 'store';
 
 interface UV { u: number, v: number }
 
@@ -82,10 +82,10 @@ const Item = (props: {
     uv: UV
 }) => {
 
-    const workspaceContext = useContext(WorkspaceContext);
+    const currentImage = useCurrentImage();
 
     return <circle className="item"
-        r={5 * workspaceContext!.scale}
+        r={5 * currentImage!.workspace.scale}
         fill={`rgb(${props.color.join(',')})`}
         cx={`${props.uv.u * 100}%`}
         cy={`${props.uv.v * 100}%`}></circle>;
@@ -96,17 +96,23 @@ const Handle = (props: {
     uv: UV,
     onMove: (uv: UV) => void
 }) => {
-    const workspaceContext = useContext(WorkspaceContext);
+    const currentImage = useCurrentImage();
 
-    const ref = useDragBehavior<SVGCircleElement>(createRef(), (e, context: typeof workspaceContext) => {
+    const ref = useDragBehavior<SVGCircleElement>(createRef(), (e, context: typeof currentImage) => {
 
-        props.onMove({
-            u: props.uv.u + e.clientDelta.x / (context!.width * context!.scale),
-            v: props.uv.v + e.clientDelta.y / (context!.height * context!.scale)
-        });
+        if (context) {
+            if(!context.width || !context.height) {
+                throw new Error('width or height state should be greater than 0');
+            }
 
-    }, [workspaceContext]);
+            props.onMove({
+                u: props.uv.u + e.clientDelta.x / (context.width * context.workspace.scale),
+                v: props.uv.v + e.clientDelta.y / (context.height * context.workspace.scale)
+            });
+        }
 
-    return <circle ref={ref} className="handle" r={8 * workspaceContext!.scale} cx={`${props.uv.u * 100}%`} cy={`${props.uv.v * 100}%`}></circle>;
+    }, [currentImage]);
+
+    return <circle ref={ref} className="handle" r={8 * currentImage!.workspace.scale} cx={`${props.uv.u * 100}%`} cy={`${props.uv.v * 100}%`}></circle>;
 
 };
