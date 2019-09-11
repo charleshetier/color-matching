@@ -9,15 +9,15 @@ export const setColorCheckerWidgetHandles = (state: State, payload: {
 }): State => {
 
     if (state.currentImageIndex === undefined) return state;
-    const handles = state.images[state.currentImageIndex].colorChecker;
+    const handles = state.images[state.currentImageIndex].colorChecker.handles;
 
-    const handlesAreEqual = (handleA: typeof handles.h1, handleB: typeof handles.h1) => 
+    const handlesAreEqual = (handleA: typeof handles.h1, handleB: typeof handles.h1) =>
         handleA.u === handleB.u && handleA.v === handleB.v;
 
-    if (handlesAreEqual(handles.h1,payload.h1)
-        && handlesAreEqual(handles.h2,payload.h2)
-        && handlesAreEqual(handles.h3,payload.h3)
-        && handlesAreEqual(handles.h4,payload.h4)) return state;
+    if (handlesAreEqual(handles.h1, payload.h1)
+        && handlesAreEqual(handles.h2, payload.h2)
+        && handlesAreEqual(handles.h3, payload.h3)
+        && handlesAreEqual(handles.h4, payload.h4)) return state;
 
     return {
         ...state,
@@ -25,7 +25,10 @@ export const setColorCheckerWidgetHandles = (state: State, payload: {
             ? image
             : {
                 ...image,
-                colorChecker: { ...payload }
+                colorChecker: {
+                    ...image.colorChecker,
+                    handles: { ...payload }
+                }
             })
     }
 }

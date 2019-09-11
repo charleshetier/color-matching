@@ -1,6 +1,7 @@
 import React, { createRef, useState, useEffect } from 'react';
 import { useDragBehavior } from 'core/hooks';
 import { useCurrentImage } from 'store';
+import { Properties } from 'components/properties/Properties';
 
 export const ViewPort = (props: { children: any }) => {
 
@@ -48,10 +49,6 @@ export const ViewPort = (props: { children: any }) => {
         <div ref={workspaceRef} style={workspaceStyle} className="workspace">
             {props.children}
         </div>
-        <aside className="properties">
-            <div className="content">
-                Hello properties
-                </div>
-        </aside>
+        <Properties />
     </section>
 };

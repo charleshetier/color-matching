@@ -7,10 +7,8 @@ export interface Workspace {
 }
 
 export interface ColorCheckerWidget {
-    h1: UV
-    h2: UV
-    h3: UV
-    h4: UV
+    handles: {h1: UV, h2: UV, h3: UV, h4: UV}
+    grid: [number, number, number][][]
 }
 
 export const initialState = {
