@@ -8,29 +8,30 @@ import { delay } from 'core';
 const App: React.FC = () => {
 
   const dispatch = useDispatch();
+  const currentImage = useCurrentImage();
+
+  const addImage = async (src: string) => {
+    dispatch(addImageAsync, { src });
+
+    const img = document.createElement('IMG') as HTMLImageElement;
+    img.src = src;
+
+    await delay(10);
+
+    dispatch(addImageCompleted, {
+      srcRef: src, 
+      width: img.naturalWidth,
+      height: img.naturalHeight
+    });
+  }
 
   const dropHandler = (e: DragEvent) => {
     e.preventDefault();
     Array.from({ length: e.dataTransfer.files.length })
       .map((o, index) => e.dataTransfer.files[index])
-      .forEach(async file => {
-        const src = URL.createObjectURL(new Blob([file], { type: file.type }));
-        dispatch(addImageAsync, { src });
-
-        const img = document.createElement('IMG') as HTMLImageElement;
-        img.src = src;
-
-        await delay(100);
-
-        dispatch(addImageCompleted, {
-          srcRef: src, 
-          width: img.naturalWidth,
-          height: img.naturalHeight
-        });
-      });
+      .forEach(async file => addImage(URL.createObjectURL(new Blob([file], { type: file.type }))));
   }
 
-  const currentImage = useCurrentImage();
 
   const backdropImage = currentImage
     ? <img alt="sample" src={currentImage.src} />

@@ -1,6 +1,7 @@
-import React, { createRef, useState } from 'react';
+import React, { createRef } from 'react';
 import { useDragBehavior } from 'core/hooks';
-import { useCurrentImage } from 'store';
+import { useCurrentImage, useDispatch } from 'store';
+import { setColorCheckerWidgetHandles } from '../../commands/set-color-checker-widget-handles';
 
 interface UV { u: number, v: number }
 
@@ -15,13 +16,8 @@ const spyderChecker24Preset = [
 
 export const Widget = () => {
 
-    // Handles position states
-    const [handles, setHandles] = useState({
-        h1: { u: 0.1, v: 0.1 },
-        h2: { u: 0.5, v: 0.1 },
-        h3: { u: 0.5, v: 0.5 },
-        h4: { u: 0.1, v: 0.5 }
-    });
+    const handles = useCurrentImage()!.colorChecker;
+    const dispatch = useDispatch();
 
     // color checker grid items data
     const items = spyderChecker24Preset.flatMap((colors, row) => colors.map((color, column) => {
@@ -68,10 +64,10 @@ export const Widget = () => {
 
 
         {/* Handles */}
-        <Handle label="h1" uv={handles.h1} onMove={uv => setHandles({ ...handles, h1: uv })} />
-        <Handle label="h2" uv={handles.h2} onMove={uv => setHandles({ ...handles, h2: uv })} />
-        <Handle label="h3" uv={handles.h3} onMove={uv => setHandles({ ...handles, h3: uv })} />
-        <Handle label="h4" uv={handles.h4} onMove={uv => setHandles({ ...handles, h4: uv })} />
+        <Handle label="h1" uv={handles.h1} onMove={uv => dispatch(setColorCheckerWidgetHandles, { ...handles, h1: uv })} />
+        <Handle label="h2" uv={handles.h2} onMove={uv => dispatch(setColorCheckerWidgetHandles, { ...handles, h2: uv })} />
+        <Handle label="h3" uv={handles.h3} onMove={uv => dispatch(setColorCheckerWidgetHandles, { ...handles, h3: uv })} />
+        <Handle label="h4" uv={handles.h4} onMove={uv => dispatch(setColorCheckerWidgetHandles, { ...handles, h4: uv })} />
 
         {/* Grid Lines */}
     </g>;

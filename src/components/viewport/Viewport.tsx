@@ -30,16 +30,13 @@ export const ViewPort = (props: { children: any }) => {
         if(viewPortRef.current && (viewPortRef.current.clientWidth !== workspace.viewPortWidth || viewPortRef.current.clientHeight !== workspace.viewPortHeight)) {
             setWorkspace({...workspace, viewPortWidth: viewPortRef.current.clientWidth, viewPortHeight: viewPortRef.current.clientHeight});
         } 
-    });
+    }, /*[viewPortRef]*/);
 
     const viewPortOrigin = {
         x: workspace.viewPortWidth / 2,
         y: workspace.viewPortHeight / 2
     };
 
-    console.log("origin", viewPortOrigin);
-    console.log("width", width);
-    
     const workspaceStyle = {
         left: `${viewPortOrigin.x + workspace.x - width / 2}px`,
         top: `${viewPortOrigin.y + workspace.y - height / 2}px`,
