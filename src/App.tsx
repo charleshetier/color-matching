@@ -2,9 +2,8 @@ import React, { DragEvent } from 'react';
 import './App.scss';
 import { ColorChecker, ViewPort, List } from 'components';
 import { useDispatch, useCurrentImage } from 'store';
-import { addImage, setCurrentImage } from 'commands';
+import { addImageAsync, addImageCompleted, setCurrentImage } from 'commands';
 import { delay } from 'core';
-import { setImageDimension } from './commands/add-image.command';
 
 const App: React.FC = () => {
 
@@ -16,14 +15,14 @@ const App: React.FC = () => {
       .map((o, index) => e.dataTransfer.files[index])
       .forEach(async file => {
         const src = URL.createObjectURL(new Blob([file], { type: file.type }));
-        dispatch(addImage, { src });
+        dispatch(addImageAsync, { src });
 
         const img = document.createElement('IMG') as HTMLImageElement;
         img.src = src;
 
         await delay(100);
 
-        dispatch(setImageDimension, {
+        dispatch(addImageCompleted, {
           srcRef: src, 
           width: img.naturalWidth,
           height: img.naturalHeight

@@ -1,7 +1,9 @@
 import { State } from "store";
 
-export const addImage = (state: State, payload: { src: string }): State => ({
-    ...state, images: [...state.images, {
+export const addImageAsync = (state: State, payload: { src: string }): State => ({
+    ...state,
+    currentImageIndex: state.images.length, // Sets the added image as selected one
+    images: [...state.images, {
         src: payload.src,
         width: 0,
         height: 0,
@@ -15,7 +17,7 @@ export const addImage = (state: State, payload: { src: string }): State => ({
     }]
 });
 
-export const setImageDimension = (state: State, payload: {
+export const addImageCompleted = (state: State, payload: {
     srcRef: string, // TODO -> use middleware to ensure continuation of add image!
     width: number,
     height: number
