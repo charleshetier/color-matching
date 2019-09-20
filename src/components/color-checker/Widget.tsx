@@ -1,4 +1,4 @@
-import React, { createRef } from 'react';
+import React, { createRef, useState } from 'react';
 import { useDragBehavior } from 'core/hooks';
 import { useCurrentImage, useDispatch } from 'store';
 import { setColorCheckerWidgetHandles } from 'commands';
@@ -14,9 +14,10 @@ export const Widget = () => {
     // hooks
     const currentImage = useCurrentImage()!;
     const dispatch = useDispatch();
+    const [realTimeHandles, setRealTimeHandles] = useState<typeof currentImage.colorChecker.handles | undefined>();
 
     /** The handles of the color checker */
-    const handles = currentImage.colorChecker.handles;
+    const handles = realTimeHandles || currentImage.colorChecker.handles;
 
     /** The color grid of the color checker */
     const grid = currentImage.colorChecker.grid;
@@ -34,10 +35,18 @@ export const Widget = () => {
 
 
         {/* Handles */}
-        <Handle label="h1" uv={handles.h1} onMove={uv => dispatch(setColorCheckerWidgetHandles, { ...handles, h1: uv })} />
-        <Handle label="h2" uv={handles.h2} onMove={uv => dispatch(setColorCheckerWidgetHandles, { ...handles, h2: uv })} />
-        <Handle label="h3" uv={handles.h3} onMove={uv => dispatch(setColorCheckerWidgetHandles, { ...handles, h3: uv })} />
-        <Handle label="h4" uv={handles.h4} onMove={uv => dispatch(setColorCheckerWidgetHandles, { ...handles, h4: uv })} />
+        <Handle label="h1" uv={handles.h1}
+            onDrag={uv => setRealTimeHandles({ ...handles, h1: uv })}
+            onDrop={uv => dispatch(setColorCheckerWidgetHandles, { ...handles, h1: uv })} />
+        <Handle label="h2" uv={handles.h2}
+            onDrag={uv => setRealTimeHandles({ ...handles, h2: uv })}
+            onDrop={uv => dispatch(setColorCheckerWidgetHandles, { ...handles, h2: uv })} />
+        <Handle label="h3" uv={handles.h3}
+            onDrag={uv => setRealTimeHandles({ ...handles, h3: uv })}
+            onDrop={uv => dispatch(setColorCheckerWidgetHandles, { ...handles, h3: uv })} />
+        <Handle label="h4" uv={handles.h4}
+            onDrag={uv => setRealTimeHandles({ ...handles, h4: uv })}
+            onDrop={uv => dispatch(setColorCheckerWidgetHandles, { ...handles, h4: uv })} />
 
         {/* Grid Lines */}
     </g>;
@@ -60,18 +69,19 @@ const Item = (props: {
 const Handle = (props: {
     label: string,
     uv: UV,
-    onMove: (uv: UV) => void
+    onDrag: (uv: UV) => void,
+    onDrop: (uv: UV) => void
 }) => {
     const currentImage = useCurrentImage();
 
     const ref = useDragBehavior<SVGCircleElement>(createRef(), (e, context: typeof currentImage) => {
 
         if (context) {
-            if(!context.width || !context.height) {
+            if (!context.width || !context.height) {
                 throw new Error('width or height state should be greater than 0');
             }
 
-            props.onMove({
+            (e.upEvent ? props.onDrop : props.onDrag)({
                 u: props.uv.u + e.clientDelta.x / (context.width * context.workspace.scale),
                 v: props.uv.v + e.clientDelta.y / (context.height * context.workspace.scale)
             });
@@ -79,6 +89,16 @@ const Handle = (props: {
 
     }, [currentImage]);
 
-    return <circle ref={ref} className="handle" r={8 * currentImage!.workspace.scale} cx={`${props.uv.u * 100}%`} cy={`${props.uv.v * 100}%`}></circle>;
+    return <g className="handle">
+        <circle ref={ref} className="grabme" r={8 * currentImage!.workspace.scale} cx={`${props.uv.u * 100}%`} cy={`${props.uv.v * 100}%`}></circle>
+        <g className="cursor" transform={`translate(${props.uv.u * currentImage!.width * currentImage!.workspace.scale},${props.uv.v * currentImage!.height * currentImage!.workspace.scale})`}>
+            <g>
+                <line x1="10" x2="15"></line>
+                <line x1="-10" x2="-15"></line>
+                <line y1="10" y2="15"></line>
+                <line y1="-10" y2="-15"></line>
+            </g>
+        </g>
+    </g>;
 
 };

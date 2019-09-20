@@ -23,8 +23,8 @@ export const Properties = () => {
                 <tbody>
                     {currentImage.colorChecker.grid.map((row, rowIndex) =>
                         <tr key={rowIndex}>
-                            {row.map((item, i) => <td>
-                                <ColorItem key={`${rowIndex} ${i}`} color={item} />
+                            {row.map((item, i) => <td key={`${rowIndex} ${i}`}>
+                                <ColorItem key={`ci ${rowIndex} ${i}`} color={item} />
                             </td>)}
                         </tr>)}
                 </tbody>
