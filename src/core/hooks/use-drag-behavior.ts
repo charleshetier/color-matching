@@ -1,6 +1,7 @@
-import { BehaviorSubject, fromEvent, merge } from "rxjs";
+import { BehaviorSubject, fromEvent, merge, Observable, OperatorFunction, MonoTypeOperatorFunction, noop } from "rxjs";
 import { RefObject, useRef, useEffect } from 'react';
 import { switchMap, combineLatest, distinctUntilChanged, map, tap, takeWhile } from 'rxjs/operators';
+import { takeWhileInclusive } from 'core/rxjs/operators';
 
 /**  The generic drag and drop handler paramater. */
 interface GenericDragDropHandlerParams {
@@ -78,7 +79,7 @@ export function useDragBehavior<TElement extends Element>(
                             bounds: element.getBoundingClientRect(),
                             context: o.context
                         })),
-                        takeWhile(o => !o.upEvent, true)
+                        takeWhileInclusive(o => !o.upEvent)    // TODO understand why 2 mouseup are going through (even context$ updated shoudl allow the twice one to pass)
                     ))
             ).subscribe(o => {
 
