@@ -3,6 +3,7 @@ import { useDragBehavior } from 'core/hooks';
 import { useCurrentImage, useDispatch } from 'store';
 import { setColorCheckerWidgetHandles } from 'commands';
 import { getGridData } from './grid';
+import { cpus } from 'os';
 
 interface UV { u: number, v: number }
 
@@ -14,10 +15,12 @@ export const Widget = () => {
     // hooks
     const currentImage = useCurrentImage()!;
     const dispatch = useDispatch();
-    const [realTimeHandles, setRealTimeHandles] = useState<typeof currentImage.colorChecker.handles | undefined>();
+    const [realTimeHandles, setRealTimeHandles] = useState<typeof currentImage.colorChecker.handles & { src: string } | undefined>();
 
     /** The handles of the color checker */
-    const handles = realTimeHandles || currentImage.colorChecker.handles;
+    const handles = realTimeHandles && realTimeHandles.src === currentImage.src
+        ? realTimeHandles
+        : currentImage.colorChecker.handles;
 
     /** The color grid of the color checker */
     const grid = currentImage.colorChecker.grid;
@@ -36,16 +39,16 @@ export const Widget = () => {
 
         {/* Handles */}
         <Handle label="h1" uv={handles.h1}
-            onDrag={uv => setRealTimeHandles({ ...handles, h1: uv })}
+            onDrag={uv => setRealTimeHandles({ ...handles, h1: uv, src: currentImage.src })}
             onDrop={uv => dispatch(setColorCheckerWidgetHandles, { ...handles, h1: uv })} />
         <Handle label="h2" uv={handles.h2}
-            onDrag={uv => setRealTimeHandles({ ...handles, h2: uv })}
+            onDrag={uv => setRealTimeHandles({ ...handles, h2: uv, src: currentImage.src })}
             onDrop={uv => dispatch(setColorCheckerWidgetHandles, { ...handles, h2: uv })} />
         <Handle label="h3" uv={handles.h3}
-            onDrag={uv => setRealTimeHandles({ ...handles, h3: uv })}
+            onDrag={uv => setRealTimeHandles({ ...handles, h3: uv, src: currentImage.src })}
             onDrop={uv => dispatch(setColorCheckerWidgetHandles, { ...handles, h3: uv })} />
         <Handle label="h4" uv={handles.h4}
-            onDrag={uv => setRealTimeHandles({ ...handles, h4: uv })}
+            onDrag={uv => setRealTimeHandles({ ...handles, h4: uv, src: currentImage.src })}
             onDrop={uv => dispatch(setColorCheckerWidgetHandles, { ...handles, h4: uv })} />
 
         {/* Grid Lines */}

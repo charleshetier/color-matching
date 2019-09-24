@@ -6,6 +6,7 @@ import { useDispatch as useReduxDispatch, useSelector as useReduxSelector } from
 export type State = typeof initialState;
 type ActionHandler = (state: State, payload: any) => State;
 
+/**  The Redux store of the application. */
 export const store = createStore(rootReducer, (window as any).__REDUX_DEVTOOLS_EXTENSION__ && (window as any).__REDUX_DEVTOOLS_EXTENSION__());
 
 export const useDispatch = () => {

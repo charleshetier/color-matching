@@ -39,6 +39,7 @@ export const getGridData = (
             uv: { u, v },
             color,
             row,
+            column,
             key: `${row.toString().padStart(2, '0')}${column.toString().padStart(2, '0')}`
         };
     }));
