@@ -72,8 +72,15 @@ export const Properties = () => {
             <div>
                 <button type="button" onClick={() => dispatch(setCurrentImageAsReference)}>Update color reference</button>
             </div>
+            
             <h1>Info</h1>
             <div>blablah</div>
+
+            <h1>3D LUT creation</h1>
+            <div>Export color checker projection:</div>
+            {/* <div><button type="button" onClick={async () => console.log(await dialog.showSaveDialog({}))}>Reference -> live projection mapping...</button></div> */}
+            <div><button type="button">Reference -> live projection mapping...</button></div>
+            <div><button type="button">Live projection -> reference mapping...</button></div>
         </div>
     </aside>;
 }
