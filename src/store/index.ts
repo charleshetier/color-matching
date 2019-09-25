@@ -11,7 +11,7 @@ export const store = createStore(rootReducer, (window as any).__REDUX_DEVTOOLS_E
 
 export const useDispatch = () => {
     const reduxDispatch = useReduxDispatch();
-    return <THandler extends ActionHandler>(actionHandler: THandler, payload: Parameters<THandler>[1]) => {
+    return <THandler extends ActionHandler>(actionHandler: THandler, payload?: Parameters<THandler>[1]) => {
         const type = actionHandler.name;// Object.keys(actionHandlers).filter(key => (actionHandlers as any /* TODO fix this!*/)[key] === actionHandler);
         return reduxDispatch({ ...payload, type });
     }

@@ -1,6 +1,7 @@
-import React, { useEffect, useState, useMemo } from 'react';
-import { useCurrentImage } from 'store';
+import React, { useMemo } from 'react';
+import { useCurrentImage, useSelector, useDispatch } from 'store';
 import { getGridData } from 'components/color-checker/grid';
+import { resetColorCheckerGrid, setCurrentImageAsReference } from 'commands';
 
 const ColorItem = (props: {
     colorRef: [number, number, number],
@@ -12,10 +13,12 @@ const ColorItem = (props: {
 
 export const Properties = () => {
 
+    // Current image from redux store
     const currentImage = useCurrentImage();
+    const colorCheckerReference = useSelector(state => state.colorCheckerReference);
+    const dispatch = useDispatch();
 
-    // const [snapShots, setSnapShots] = useState<[number, number, number][][] | undefined>();
-
+    // Computing grid snapshot
     const snapshot = useMemo(() => {
         if (currentImage) {
 
@@ -28,7 +31,10 @@ export const Properties = () => {
             canvasElement.height = currentImage.height;
             canvasContext.drawImage(img, 0, 0);
 
-            const items = getGridData(currentImage.colorChecker.grid, currentImage.colorChecker.handles);
+            // Computing uv coordinate of each grid items
+            const items = getGridData(colorCheckerReference.grid, currentImage.colorChecker.handles);
+
+            // Color extraction from current imate at each grid item position
             const itemsSnapshot = items.map(cell => {
                 const data = canvasContext.getImageData(
                     cell.uv.u * currentImage.width,
@@ -41,7 +47,7 @@ export const Properties = () => {
 
             return itemsSnapshot;
         }
-    }, [currentImage]);
+    }, [currentImage, colorCheckerReference]);
 
     if (!currentImage) return null;
 
@@ -49,9 +55,10 @@ export const Properties = () => {
         <div className="content">
             <h1>Color checker</h1>
             <div>spyder Chekr 24</div>
+            <div><button type="button" onClick={() => dispatch(resetColorCheckerGrid)}>Reset</button></div>
             <table cellSpacing="0">
                 <tbody>
-                    {currentImage.colorChecker.grid.map((row, rowIndex) =>
+                    {colorCheckerReference.grid.map((row, rowIndex) =>
                         <tr key={rowIndex}>
                             {row.map((item, i) => <td key={`${rowIndex} ${i}`}>
                                 <ColorItem
@@ -62,6 +69,11 @@ export const Properties = () => {
                         </tr>)}
                 </tbody>
             </table>
+            <div>
+                <button type="button" onClick={() => dispatch(setCurrentImageAsReference)}>Update color reference</button>
+            </div>
+            <h1>Info</h1>
+            <div>blablah</div>
         </div>
     </aside>;
 }

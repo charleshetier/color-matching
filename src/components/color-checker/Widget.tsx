@@ -1,9 +1,8 @@
 import React, { createRef, useState } from 'react';
 import { useDragBehavior } from 'core/hooks';
-import { useCurrentImage, useDispatch } from 'store';
+import { useCurrentImage, useDispatch, useSelector } from 'store';
 import { setColorCheckerWidgetHandles } from 'commands';
 import { getGridData } from './grid';
-import { cpus } from 'os';
 
 interface UV { u: number, v: number }
 
@@ -12,7 +11,8 @@ interface UV { u: number, v: number }
  */
 export const Widget = () => {
 
-    // hooks
+    /** The color grid of the color checker */
+    const grid = useSelector(state => state.colorCheckerReference.grid);
     const currentImage = useCurrentImage()!;
     const dispatch = useDispatch();
     const [realTimeHandles, setRealTimeHandles] = useState<typeof currentImage.colorChecker.handles & { src: string } | undefined>();
@@ -21,9 +21,6 @@ export const Widget = () => {
     const handles = realTimeHandles && realTimeHandles.src === currentImage.src
         ? realTimeHandles
         : currentImage.colorChecker.handles;
-
-    /** The color grid of the color checker */
-    const grid = currentImage.colorChecker.grid;
 
     // color checker grid items data
     const items = getGridData(grid, handles);

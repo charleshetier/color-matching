@@ -1,6 +1,6 @@
-import { BehaviorSubject, fromEvent, merge, Observable, OperatorFunction, MonoTypeOperatorFunction, noop } from "rxjs";
+import { BehaviorSubject, fromEvent, merge } from "rxjs";
 import { RefObject, useRef, useEffect } from 'react';
-import { switchMap, combineLatest, distinctUntilChanged, map, tap, takeWhile } from 'rxjs/operators';
+import { switchMap, combineLatest, distinctUntilChanged, map, tap } from 'rxjs/operators';
 import { takeWhileInclusive } from 'core/rxjs/operators';
 
 /**  The generic drag and drop handler paramater. */
