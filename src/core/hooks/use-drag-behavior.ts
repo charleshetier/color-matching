@@ -1,5 +1,5 @@
 import { BehaviorSubject, fromEvent, merge } from "rxjs";
-import { RefObject, useRef, useEffect } from 'react';
+import { useRef, useEffect, MutableRefObject } from 'react';
 import { switchMap, combineLatest, distinctUntilChanged, map, tap } from 'rxjs/operators';
 import { takeWhileInclusive } from 'core/rxjs/operators';
 
@@ -32,7 +32,7 @@ interface DropHandlerParams {
 }
 
 export function useDragBehavior<TElement extends Element>(
-    ref: RefObject<TElement>,
+    ref: MutableRefObject<TElement | undefined>,
     handler:
         ((param: GenericDragDropHandlerParams, context?: any) => void)
         | {
@@ -115,7 +115,7 @@ export function useDragBehavior<TElement extends Element>(
             });
         }
         // eslint-disable-next-line
-    }, [context$, handler$]);
+    }, [context$, handler$, ref]);
 
     // Returning the ref element for inline hook use purpose
     return ref;

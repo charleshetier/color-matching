@@ -1,4 +1,4 @@
-import React, { createRef, useState, useEffect } from 'react';
+import React, { createRef, useState, useEffect, useRef } from 'react';
 import { useDragBehavior } from 'core/hooks';
 import { useCurrentImage } from 'store';
 import { Properties } from 'components/properties/Properties';
@@ -14,7 +14,7 @@ export const ViewPort = (props: { children: any }) => {
     });
     const currentImage = useCurrentImage();
 
-    const workspaceRef = useDragBehavior<HTMLDivElement>(createRef(), (e, context) => {
+    const workspaceRef = useDragBehavior<HTMLDivElement>(useRef(), (e, context) => {
         setWorkspace({
             ...workspace,
             x: workspace.x + e.clientDelta.x,
@@ -58,7 +58,7 @@ export const ViewPort = (props: { children: any }) => {
             <li style={{borderTop: 'solid 1px #555', margin: '5px 0'}}></li>
         </ul> : null}
 
-        <div ref={workspaceRef} style={workspaceStyle} className="workspace">
+        <div ref={workspaceRef as any} style={workspaceStyle} className="workspace">
             {props.children}
         </div>
         

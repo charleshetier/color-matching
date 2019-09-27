@@ -2,6 +2,8 @@ import React, { useMemo } from 'react';
 import { useCurrentImage, useSelector, useDispatch } from 'store';
 import { getGridData } from 'components/color-checker/grid';
 import { resetColorCheckerGrid, setCurrentImageAsReference } from 'commands';
+import { saveLUT } from 'main/file-system';
+import { Lut3d } from './Lut3d';
 
 const ColorItem = (props: {
     colorRef: [number, number, number],
@@ -72,14 +74,18 @@ export const Properties = () => {
             <div>
                 <button type="button" onClick={() => dispatch(setCurrentImageAsReference)}>Update color reference</button>
             </div>
-            
+
             <h1>Info</h1>
             <div>blablah</div>
 
-            <h1>3D LUT creation</h1>
+            <h1>3D LUT</h1>
+
+            <Lut3d></Lut3d>
+            <br />
+            
             <div>Export color checker projection:</div>
             {/* <div><button type="button" onClick={async () => console.log(await dialog.showSaveDialog({}))}>Reference -> live projection mapping...</button></div> */}
-            <div><button type="button">Reference -> live projection mapping...</button></div>
+            <div><button type="button" onClick={() => saveLUT(colorCheckerReference.grid.flatMap(row => row), snapshot!.map(o => o.color))}>Reference -> live projection mapping...</button></div>
             <div><button type="button">Live projection -> reference mapping...</button></div>
         </div>
     </aside>;

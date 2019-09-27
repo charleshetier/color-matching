@@ -5,7 +5,6 @@ const BrowserWindow = electron.BrowserWindow;
 const path = require('path');
 const isDev = require('electron-is-dev');
 
-
 let mainWindow;
 
 // Disables security warnings

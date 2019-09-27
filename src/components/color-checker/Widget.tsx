@@ -1,4 +1,4 @@
-import React, { createRef, useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useDragBehavior } from 'core/hooks';
 import { useCurrentImage, useDispatch, useSelector } from 'store';
 import { setColorCheckerWidgetHandles } from 'commands';
@@ -74,7 +74,7 @@ const Handle = (props: {
 }) => {
     const currentImage = useCurrentImage();
 
-    const ref = useDragBehavior<SVGCircleElement>(createRef(), (e, context: typeof currentImage) => {
+    const ref = useDragBehavior<SVGCircleElement>(useRef(), (e, context: typeof currentImage) => {
 
         if (context) {
             if (!context.width || !context.height) {
@@ -90,7 +90,7 @@ const Handle = (props: {
     }, [currentImage]);
 
     return <g className="handle">
-        <circle ref={ref} className="grabme" r={8 * currentImage!.workspace.scale} cx={`${props.uv.u * 100}%`} cy={`${props.uv.v * 100}%`}></circle>
+        <circle ref={ref as any} className="grabme" r={8 * currentImage!.workspace.scale} cx={`${props.uv.u * 100}%`} cy={`${props.uv.v * 100}%`}></circle>
         <g className="cursor" transform={`translate(${props.uv.u * currentImage!.width * currentImage!.workspace.scale},${props.uv.v * currentImage!.height * currentImage!.workspace.scale})`}>
             <g>
                 <line x1="10" x2="15"></line>
