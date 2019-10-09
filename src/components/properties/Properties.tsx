@@ -1,8 +1,8 @@
 import React, { useMemo } from 'react';
-import { useCurrentImage, useSelector, useDispatch } from 'store';
+import { useCurrentImage, useSelector, useDispatch, useCurrentColorCheckerSnapshot as useCurrentSnapshot, useCurrentColorCheckerReference } from 'store';
 import { getGridData } from 'components/color-checker/grid';
 import { resetColorCheckerGrid, setCurrentImageAsReference } from 'commands';
-import { saveLUT } from 'main/file-system';
+import { saveLUT } from 'io/file-system';
 import { Lut3d } from './Lut3d';
 
 const ColorItem = (props: {
@@ -16,40 +16,10 @@ const ColorItem = (props: {
 export const Properties = () => {
 
     // Current image from redux store
-    const currentImage = useCurrentImage();
-    const colorCheckerReference = useSelector(state => state.colorCheckerReference);
     const dispatch = useDispatch();
-
-    // Computing grid snapshot
-    const snapshot = useMemo(() => {
-        if (currentImage) {
-
-            // Buffer Image canvas creation
-            const img = document.createElement('IMG') as HTMLImageElement;
-            const canvasElement = document.createElement('CANVAS') as HTMLCanvasElement;
-            const canvasContext = canvasElement.getContext('2d')!;
-            img.src = currentImage.src;
-            canvasElement.width = currentImage.width;
-            canvasElement.height = currentImage.height;
-            canvasContext.drawImage(img, 0, 0);
-
-            // Computing uv coordinate of each grid items
-            const items = getGridData(colorCheckerReference.grid, currentImage.colorChecker.handles);
-
-            // Color extraction from current imate at each grid item position
-            const itemsSnapshot = items.map(cell => {
-                const data = canvasContext.getImageData(
-                    cell.uv.u * currentImage.width,
-                    cell.uv.v * currentImage.height,
-                    1,
-                    1).data.slice(0, 3); // TODO: extract a range of pixel instead
-                const color = [data[0], data[1], data[2]] as [number, number, number];
-                return { ...cell, color };
-            });
-
-            return itemsSnapshot;
-        }
-    }, [currentImage, colorCheckerReference]);
+    const currentImage = useCurrentImage();
+    const colorCheckerReference = useCurrentColorCheckerReference();
+    const snapshot = useCurrentSnapshot();
 
     if (!currentImage) return null;
 

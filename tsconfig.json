@@ -19,7 +19,7 @@
     "noEmit": true,
     "jsx": "react",
     "baseUrl": "src",
-    "types": ["electron"],
+    "types": ["electron", "jest"],
     "typeRoots": ["node_modules/@types"]
   },
   "include": [
