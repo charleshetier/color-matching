@@ -1,5 +1,5 @@
 import { remote } from "io";
-import { createNeutralCube } from '../core/lut/cube';
+import { createNeutralCube } from 'core/coloring/cube';
 const remoteFs = remote.require('fs');
 
 export const writeFile = (path: string, data: string): Promise<undefined> => remoteFs.promises.writeFile(path, data);

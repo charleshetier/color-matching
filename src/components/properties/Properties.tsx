@@ -1,9 +1,10 @@
-import React, { useMemo } from 'react';
-import { useCurrentImage, useSelector, useDispatch, useCurrentColorCheckerSnapshot as useCurrentSnapshot, useCurrentColorCheckerReference } from 'store';
-import { getGridData } from 'components/color-checker/grid';
+import React, { useEffect, useMemo, useContext } from 'react';
+import { useCurrentImage, useSelector, useDispatch, useCurrentColorCheckerSnapshot } from 'store';
 import { resetColorCheckerGrid, setCurrentImageAsReference } from 'commands';
 import { saveLUT } from 'io/file-system';
 import { Lut3d } from './Lut3d';
+import { LutContext } from 'components/context';
+import { RGB } from 'core/model';
 
 const ColorItem = (props: {
     colorRef: [number, number, number],
@@ -18,8 +19,24 @@ export const Properties = () => {
     // Current image from redux store
     const dispatch = useDispatch();
     const currentImage = useCurrentImage();
-    const colorCheckerReference = useCurrentColorCheckerReference();
-    const snapshot = useCurrentSnapshot();
+    const colorCheckerReference = useSelector(state => state.colorCheckerReference);
+    const snapshot = useCurrentColorCheckerSnapshot();
+    const { cube } = useContext(LutContext);
+
+    // test!
+    // const worker = useMemo(() => new Worker('core/coloring/cube-projection.worker'), []);
+    useEffect(() => {
+        if (snapshot) {
+            const colorsMapping = colorCheckerReference.grid.flatMap((o, row) =>
+                o.map(r => r.map(c => c/255) as RGB).map((reference, column) => {
+                    const projection = snapshot.find(s => s.column === column && s.row === row)!.color.map(c => c / 255) as RGB;
+                    return { projection, reference };
+                }));
+
+            cube.projectWith(colorsMapping);
+            console.log(cube);
+        }
+    }, [snapshot]);
 
     if (!currentImage) return null;
 
@@ -49,10 +66,10 @@ export const Properties = () => {
             <div>blablah</div>
 
             <h1>3D LUT</h1>
-
+            <div><button type="button" onClick={() => cube.step()}>Update cube (relax step)</button></div>
             <Lut3d></Lut3d>
             <br />
-            
+
             <div>Export color checker projection:</div>
             {/* <div><button type="button" onClick={async () => console.log(await dialog.showSaveDialog({}))}>Reference -> live projection mapping...</button></div> */}
             <div><button type="button" onClick={() => saveLUT(colorCheckerReference.grid.flatMap(row => row), snapshot!.map(o => o.color))}>Reference -> live projection mapping...</button></div>

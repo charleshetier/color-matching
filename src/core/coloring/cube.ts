@@ -1,10 +1,4 @@
-
-type RGB = [number, number, number];
-type RGBIndices = [number, number, number];
-
-const RGB_RED_INDEX = 0;
-const RGB_GREEN_INDEX = 1;
-const RGB_BLUE_INDEX = 2;
+import { RGBIndices, RGB, RGB_BLUE_INDEX, RGB_GREEN_INDEX, RGB_RED_INDEX } from "core/model";
 
 type CubeHook = {
     /** The list of cube nodes the hook is dependent from */
@@ -91,7 +85,7 @@ export class ColorCube {
 
         /** Create dependancy context for the specified rgb0 (from reference data) value */
         const findNodesDependenciesFor = (rgb0: RGB) => {
-            const rgbIndex = rgb0.map(c => c * this.size);
+            const rgbIndex = rgb0.map(c => c * (this.size - 1));
             const index_0 = (rgbChanel: number) => Math.floor(rgbIndex[rgbChanel]);
             const index_1 = (rgbChanel: number) => Math.floor(rgbIndex[rgbChanel] + 1);
 

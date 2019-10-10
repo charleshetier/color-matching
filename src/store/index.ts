@@ -28,9 +28,6 @@ export const useCurrentImage = () => useSelector(state => state.currentImageInde
     ? state.images[state.currentImageIndex]
     : undefined);
 
-/** Provides the current image colorchecker reference  */
-export const useCurrentColorCheckerReference = () => useSelector(state => state.colorCheckerReference);
-
 /** Provides the current image colorchecker snapshot  */
 export const useCurrentColorCheckerSnapshot = () => {
 
