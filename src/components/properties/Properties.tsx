@@ -33,8 +33,8 @@ export const Properties = () => {
                     return { projection, reference };
                 }));
 
-            cube.projectWith(colorsMapping);
-            console.log(cube);
+            // cube.projectWith(colorsMapping);
+            // console.log(cube);
         }
     }, [snapshot]);
 
@@ -66,7 +66,7 @@ export const Properties = () => {
             <div>blablah</div>
 
             <h1>3D LUT</h1>
-            <div><button type="button" onClick={() => cube.step()}>Update cube (relax step)</button></div>
+            {/* <div><button type="button" onClick={() => cube.step()}>Update cube (relax step)</button></div> */}
             <Lut3d></Lut3d>
             <br />
 
