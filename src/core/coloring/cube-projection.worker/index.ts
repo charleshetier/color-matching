@@ -1,5 +1,6 @@
-import { RGB, RGBIndices, RGB_RED_INDEX, RGB_GREEN_INDEX, RGB_BLUE_INDEX } from "core/model";
-import { findCubeDependancieNodesAt, computeNodeDistanceFromRGBValue, createCubeHookForRGBValue } from './hooking';
+import { RGB } from "core/model";
+import { createCubeHookForRGBValue } from './hooking';
+import { step } from "./relaxation";
 
 const worker: Worker = self as any;
 
@@ -8,5 +9,7 @@ worker.addEventListener('message', (event) => {
     const cube: { colors: RGB[], size: number } = event.data.cube;
 
     const hooks = mapping.map(colorDistorsion => createCubeHookForRGBValue(cube)(colorDistorsion.reference, colorDistorsion.projection));
-    // todo continue
+    step(cube)(hooks);
+
+    worker.postMessage({nodes: cube.colors});
 });

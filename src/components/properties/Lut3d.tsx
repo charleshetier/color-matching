@@ -1,7 +1,7 @@
-import React, { useEffect, useRef, useContext } from 'react';
+import React, { useEffect, useRef, useContext, useMemo } from 'react';
 import * as THREE from 'three';
 import { useDragBehavior } from 'core/hooks';
-import { useCurrentColorCheckerSnapshot } from 'store';
+import { useCurrentColorCheckerSnapshot, useSelector } from 'store';
 import { LutContext } from 'components/context';
 
 export const Lut3d = () => {
@@ -22,15 +22,17 @@ export const Lut3d = () => {
         }
     });
 
-    // const colorCheckerReference = useCurrentColorCheckerReference();
-    // const colorCheckerSnapshot = useCurrentColorCheckerSnapshot();
-    // useMemo(() => {
-    //     sceneData.colorCube.projectWith(colorCheckerReference.grid.flatMap(o => o)
-    //         .map((reference, i) => ({
-    //             reference,
-    //             projection: colorCheckerSnapshot[i]
-    //         })));
-    // }, [colorCheckerReference, colorCheckerSnapshot])
+    const colorCheckerReference = useSelector(state => state.colorCheckerReference);
+    const colorCheckerSnapshot = useCurrentColorCheckerSnapshot();
+    useMemo(() => {
+        if (colorCheckerSnapshot) {
+            colorCube.project(colorCheckerReference.grid.flatMap(o => o)
+                .map((reference, i) => ({
+                    reference,
+                    projection: colorCheckerSnapshot[i].color
+                })));
+        }
+    }, [colorCheckerReference, colorCheckerSnapshot])
 
 
     // Building 3D scene
@@ -45,19 +47,7 @@ export const Lut3d = () => {
         mountElement.appendChild(renderer.domElement);
         scene.add(cubeObject);
 
-        // const g = new THREE.SphereGeometry(0.025, 4, 4);
-        // const colorCubeNodeObjects = colorCube.colors.map((rgb, i) => {
-        //     const m = new THREE.MeshBasicMaterial({ color: new THREE.Color(...rgb) });
-        //     const nodeObject = new THREE.Mesh(g, m);
-        //     nodeObject.position.set(
-        //         (i % size) / (size - 1) - 0.5,
-        //         (Math.floor(i / (size)) % size) / (size - 1) - 0.5,
-        //         Math.floor(i / (size * size)) / (size - 1) - 0.5);
-        //     scene.add(nodeObject);
-        //     nodeObject.parent = cubeObject;
-        //     return nodeObject;
-        // });
-        const color = new THREE.Color();
+
         const geometry = new THREE.BufferGeometry();
         geometry.addAttribute('position', new THREE.Float32BufferAttribute(colorCube.colors.flatMap((o, i) => [
             (i % size) / (size - 1) - 0.5,
@@ -76,6 +66,8 @@ export const Lut3d = () => {
         cubeObject.rotation.y = 1;
 
         renderer.render(scene, camera);
+
+        colorCube.cubeNodes$.subscribe(e => console.log('cubeNodes', e));
 
         // function frame() {
         //     colorCube.colors.forEach((color, i) => {

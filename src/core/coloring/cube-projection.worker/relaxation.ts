@@ -1,10 +1,13 @@
 import { RGB, RGB_GREEN_INDEX, RGB_RED_INDEX, RGBIndices, RGB_BLUE_INDEX } from "core/model";
 import { createCubeHookForRGBValue } from './hooking';
 
+type Hook = ReturnType<ReturnType<typeof createCubeHookForRGBValue>>;
+
 const relaxation = {
-    homogeneityStrengthFactor: 0.2,
+    homogeneityStrengthFactor: 0.1,
     targetStrengthFactor: 0.4
 };
+
 
 export const step = (cube: { size: number, colors: RGB[] }) => {
 
@@ -13,44 +16,50 @@ export const step = (cube: { size: number, colors: RGB[] }) => {
         ...Array.from(Array(cube.size - 1).keys()).reverse() // backward: size-2 -> 0
     ];
 
-    return (hooks: ReturnType<ReturnType<typeof createCubeHookForRGBValue>>[]) => {
+    return (hooks: Hook[]) => {
 
         // Stretching the cube to reach hooks
-        hooks.forEach(hook => hook.dependancies.forEach(dependancy => {
-            const currentColor = getColorAt(cube)(...dependancy.rgb0Indices);
-            const newColor = currentColor
-                .map((channelValue, channel) =>
-                    channelValue + (hook.target[channel] - channelValue) * relaxation.targetStrengthFactor) as RGB;
-            //this.setColorAt(newColor, ...dependancy.rgb0Indices);
-        }));
+        hooks.forEach(stepHookConstraint(cube));
 
         // Relaxing blue channel color backward and forward
         for (let r = 0; r < cube.size; r++)
             for (let g = 0; g < cube.size; g++)
                 forwardBackwardBrowsingRange
-                    .forEach(b => setColorAt(
-                        relaxeColorChannelNode(cube)([r, g, b], RGB_BLUE_INDEX),
+                    .forEach(b => setColorAt(cube)(
+                        stepColorChannelNodeRelaxation(cube)([r, g, b], RGB_BLUE_INDEX),
                         r, g, b));
 
         // Relaxing green channel color backward and forward
         for (let b = 0; b < cube.size; b++)
             for (let r = 0; r < cube.size; r++)
                 forwardBackwardBrowsingRange
-                    .forEach(g => setColorAt(
-                        relaxeColorChannelNode(cube)([r, g, b], RGB_GREEN_INDEX),
+                    .forEach(g => setColorAt(cube)(
+                        stepColorChannelNodeRelaxation(cube)([r, g, b], RGB_GREEN_INDEX),
                         r, g, b));
 
         // Relaxing red channel color backward and forward
         for (let g = 0; g < cube.size; g++)
             for (let b = 0; b < cube.size; b++)
                 forwardBackwardBrowsingRange
-                    .forEach(r => setColorAt(
-                        relaxeColorChannelNode(cube)([r, g, b], RGB_RED_INDEX),
+                    .forEach(r => setColorAt(cube)(
+                        stepColorChannelNodeRelaxation(cube)([r, g, b], RGB_RED_INDEX),
                         r, g, b));
     };
 };
 
-export const relaxeColorChannelNode = (cube: { colors: RGB[], size: number }) => (
+export const stepHookConstraint = (cube: { size: number, colors: RGB[] }) => (hook: Hook) =>
+    hook.dependancies.forEach(dependancy => {
+        const currentColor = getColorAt(cube)(...dependancy.rgb0Indices);
+        const newColor = currentColor
+            .map((channelValue, channel) =>
+                channelValue // initial value
+                + (hook.target[channel] - channelValue) // gap between target and initial value
+                * relaxation.targetStrengthFactor   // step ratio from config
+                * dependancy.influence) as RGB; // step ratio from influence value
+        setColorAt(cube)(newColor, ...dependancy.rgb0Indices);
+    });
+
+export const stepColorChannelNodeRelaxation = (cube: { colors: RGB[], size: number }) => (
     node: RGBIndices,
     channel: typeof RGB_RED_INDEX | typeof RGB_GREEN_INDEX | typeof RGB_BLUE_INDEX) => {
 
@@ -61,26 +70,31 @@ export const relaxeColorChannelNode = (cube: { colors: RGB[], size: number }) =>
     };
 
     // Computing target value
-    let targetChannelValue = NaN;
-    const nodeChannelIndex = node[channel];
-    if (nodeChannelIndex === 0) {
-        // The first node targeted value is extrapolated from the 2 next nodes
-        const axeChannelNodeIndices = [...node] as RGBIndices;
-        axeChannelNodeIndices[channel] = 1;
-        const axeChannelValue = getColorAt(cube)(...nodeIndicesWithChannelValue(1))[channel];
-        const mirrorTargetedChannelValue = getColorAt(cube)(...nodeIndicesWithChannelValue(2))[channel];
-        targetChannelValue = axeChannelValue - mirrorTargetedChannelValue + axeChannelValue;
-    } else if (nodeChannelIndex === cube.size - 1) {
-        // The last node targeted value is extrapolated from the 2 previous nodes
-        const axeChannelValue = getColorAt(cube)(...nodeIndicesWithChannelValue(cube.size - 2))[channel];
-        const mirrorTargetedChannelValue = getColorAt(cube)(...nodeIndicesWithChannelValue(cube.size - 3))[channel];
-        targetChannelValue = axeChannelValue + axeChannelValue - mirrorTargetedChannelValue;
-    } else {
+    const targetChannelValue = (() => {
+        const nodeChannelIndex = node[channel];
+        
+        if (nodeChannelIndex === 0) {
+            // The first node targeted value is extrapolated from the 2 next nodes
+            const axeChannelNodeIndices = [...node] as RGBIndices;
+            axeChannelNodeIndices[channel] = 1;
+            const axeChannelValue = getColorAt(cube)(...nodeIndicesWithChannelValue(1))[channel];
+            const mirrorTargetedChannelValue = getColorAt(cube)(...nodeIndicesWithChannelValue(2))[channel];
+            return axeChannelValue - mirrorTargetedChannelValue + axeChannelValue;
+        }
+
+        if (nodeChannelIndex === cube.size - 1) {
+            // The last node targeted value is extrapolated from the 2 previous nodes
+            const axeChannelValue = getColorAt(cube)(...nodeIndicesWithChannelValue(cube.size - 2))[channel];
+            const mirrorTargetedChannelValue = getColorAt(cube)(...nodeIndicesWithChannelValue(cube.size - 3))[channel];
+            return axeChannelValue + axeChannelValue - mirrorTargetedChannelValue;
+        }
+       
         // By default a node targeted value is between the next and previous node
         const nextValue = getColorAt(cube)(...nodeIndicesWithChannelValue(nodeChannelIndex + 1))[channel];
         const previousValue = getColorAt(cube)(...nodeIndicesWithChannelValue(nodeChannelIndex - 1))[channel];
-        targetChannelValue = (nextValue + previousValue) / 2;
-    }
+        return (nextValue + previousValue) / 2;
+
+    })();
 
     // Updating color value
     const actualColorValue = getColorAt(cube)(...node);
@@ -97,9 +111,6 @@ export const relaxeColorChannelNode = (cube: { colors: RGB[], size: number }) =>
 
 /**
  * Gets the color RGB value at specified rgb node indices.
- * @param rIndex The red index node within the current cube
- * @param gIndex The green index node within the current cube
- * @param bIndex The blue index node within the current cube
  */
 export const getColorAt = (cube: { colors: RGB[], size: number }) => {
     const size2 = cube.size * cube.size;
@@ -113,4 +124,14 @@ export const getColorAt = (cube: { colors: RGB[], size: number }) => {
     }
 }
 
-const setColorAt = (...args: any[]) => {};
+/**
+ * Sets the color at specified node coordinate.
+ */
+export const setColorAt = (cube: { colors: RGB[], size: number }) => {
+    const size2 = cube.size * cube.size;
+
+    return (color: RGB, rIndex: number, gIndex: number, bIndex: number) => {
+        const index = rIndex + gIndex * cube.size + bIndex * size2;
+        cube.colors[index] = color;
+    };
+};
