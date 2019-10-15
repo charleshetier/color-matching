@@ -1,12 +1,8 @@
 import { RGB, RGB_GREEN_INDEX, RGB_RED_INDEX, RGBIndices, RGB_BLUE_INDEX } from "core/model";
 import { createCubeHookForRGBValue } from './hooking';
+import config from 'config';
 
 type Hook = ReturnType<ReturnType<typeof createCubeHookForRGBValue>>;
-
-const relaxation = {
-    homogeneityStrengthFactor: 0.2,
-    targetStrengthFactor: 0.001
-};
 
 
 export const step = (cube: { size: number, colors: RGB[] }) => {
@@ -19,7 +15,7 @@ export const step = (cube: { size: number, colors: RGB[] }) => {
     return (hooks: Hook[]) => {
 
         // Stretching the cube to reach hooks
-        hooks.forEach(stepHookConstraint(cube));
+       hooks.forEach(stepHookConstraint(cube));
 
         // Relaxing blue channel color backward and forward
         for (let r = 0; r < cube.size; r++)
@@ -29,21 +25,21 @@ export const step = (cube: { size: number, colors: RGB[] }) => {
                         stepColorChannelNodeRelaxation(cube)([r, g, b], RGB_BLUE_INDEX),
                         r, g, b));
 
-        // // Relaxing green channel color backward and forward
-        // for (let b = 0; b < cube.size; b++)
-        //     for (let r = 0; r < cube.size; r++)
-        //         forwardBackwardBrowsingRange
-        //             .forEach(g => setColorAt(cube)(
-        //                 stepColorChannelNodeRelaxation(cube)([r, g, b], RGB_GREEN_INDEX),
-        //                 r, g, b));
+        // Relaxing green channel color backward and forward
+        for (let b = 0; b < cube.size; b++)
+            for (let r = 0; r < cube.size; r++)
+                forwardBackwardBrowsingRange
+                    .forEach(g => setColorAt(cube)(
+                        stepColorChannelNodeRelaxation(cube)([r, g, b], RGB_GREEN_INDEX),
+                        r, g, b));
 
-        // // Relaxing red channel color backward and forward
-        // for (let g = 0; g < cube.size; g++)
-        //     for (let b = 0; b < cube.size; b++)
-        //         forwardBackwardBrowsingRange
-        //             .forEach(r => setColorAt(cube)(
-        //                 stepColorChannelNodeRelaxation(cube)([r, g, b], RGB_RED_INDEX),
-        //                 r, g, b));
+        // Relaxing red channel color backward and forward
+        for (let g = 0; g < cube.size; g++)
+            for (let b = 0; b < cube.size; b++)
+                forwardBackwardBrowsingRange
+                    .forEach(r => setColorAt(cube)(
+                        stepColorChannelNodeRelaxation(cube)([r, g, b], RGB_RED_INDEX),
+                        r, g, b));
     };
 };
 
@@ -54,7 +50,7 @@ export const stepHookConstraint = (cube: { size: number, colors: RGB[] }) => (ho
             .map((channelValue, channel) =>
                 channelValue // initial value
                 + (hook.target[channel] - channelValue) // gap between target and initial value
-                * relaxation.targetStrengthFactor   // step ratio from config
+                * config.relaxation.targetStrengthFactor   // step ratio from config
                 * dependancy.influence) as RGB; // step ratio from influence value
         setColorAt(cube)(newColor, ...dependancy.rgb0Indices);
     });
@@ -99,12 +95,9 @@ export const stepColorChannelNodeRelaxation = (cube: { colors: RGB[], size: numb
     // Updating color value
     const actualColorValue = getColorAt(cube)(...node);
     const actualChannelValue = actualColorValue[channel];
-    const relaxedChannelValue = actualChannelValue + (targetChannelValue - actualChannelValue) * relaxation.homogeneityStrengthFactor;
-    const newColorValue: RGB = [
-        actualColorValue[0],
-        actualColorValue[1],
-        relaxedChannelValue
-    ];
+    const relaxedChannelValue = actualChannelValue + (targetChannelValue - actualChannelValue) * config.relaxation.homogeneityStrengthFactor;
+    const newColorValue = [...actualColorValue] as RGB;
+    newColorValue[channel] = relaxedChannelValue;
 
     return newColorValue;
 };

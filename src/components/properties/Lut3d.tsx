@@ -31,7 +31,7 @@ export const Lut3d = () => {
                 .map(reference256 => reference256.map(c => c / 255) as RGB)
                 .map((reference, i) => ({
                     reference,
-                    projection: colorCheckerSnapshot[i].color
+                    projection: colorCheckerSnapshot[i].color.map(c => c / 255) as RGB
                 })));
         }
     }, [colorCheckerReference, colorCheckerSnapshot, colorCube])
@@ -66,7 +66,7 @@ export const Lut3d = () => {
         renderer.render(scene, camera);
 
         colorCube.cubeNodes$.subscribe(e => {
-            console.log('cubeNodes', e);
+            //console.log('cubeNodes', e);
             e.nodes.forEach((node, i) => {
                 //@ts-ignore
                 geometry.attributes.position.array[i*3] = node[0] - 0.5;

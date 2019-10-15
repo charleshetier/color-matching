@@ -1,9 +1,10 @@
 import { createContext } from "react";
 import * as THREE from 'three';
 import { ColorCube } from 'core/coloring/cube';
+import config from 'config';
 
 export const lutContextDefaultValue = {
-    cube: new ColorCube(8),
+    cube: new ColorCube(config.cube.size),
     three: {
         scene: new THREE.Scene(),
         camera: new THREE.PerspectiveCamera(75, undefined, 0.1, 100),
