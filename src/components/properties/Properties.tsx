@@ -1,10 +1,8 @@
-import React, { useEffect, useMemo, useContext } from 'react';
+import React from 'react';
 import { useCurrentImage, useSelector, useDispatch, useCurrentColorCheckerSnapshot } from 'store';
 import { resetColorCheckerGrid, setCurrentImageAsReference } from 'commands';
 import { saveLUT } from 'io/file-system';
 import { Lut3d } from './Lut3d';
-import { LutContext } from 'components/context';
-import { RGB } from 'core/model';
 
 const ColorItem = (props: {
     colorRef: [number, number, number],
@@ -21,22 +19,6 @@ export const Properties = () => {
     const currentImage = useCurrentImage();
     const colorCheckerReference = useSelector(state => state.colorCheckerReference);
     const snapshot = useCurrentColorCheckerSnapshot();
-    const { cube } = useContext(LutContext);
-
-    // test!
-    // const worker = useMemo(() => new Worker('core/coloring/cube-projection.worker'), []);
-    useEffect(() => {
-        if (snapshot) {
-            const colorsMapping = colorCheckerReference.grid.flatMap((o, row) =>
-                o.map(r => r.map(c => c/255) as RGB).map((reference, column) => {
-                    const projection = snapshot.find(s => s.column === column && s.row === row)!.color.map(c => c / 255) as RGB;
-                    return { projection, reference };
-                }));
-
-            // cube.projectWith(colorsMapping);
-            // console.log(cube);
-        }
-    }, [snapshot]);
 
     if (!currentImage) return null;
 

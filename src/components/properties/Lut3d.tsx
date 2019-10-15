@@ -3,6 +3,7 @@ import * as THREE from 'three';
 import { useDragBehavior } from 'core/hooks';
 import { useCurrentColorCheckerSnapshot, useSelector } from 'store';
 import { LutContext } from 'components/context';
+import { RGB } from 'core/model';
 
 export const Lut3d = () => {
 
@@ -10,7 +11,6 @@ export const Lut3d = () => {
     const mountRef = useRef<HTMLDivElement>();
 
     const { cube: colorCube, three } = useContext(LutContext);
-    const size = colorCube.size;
 
     // Scene mouse drag interactions
     useDragBehavior(mountRef, {
@@ -26,13 +26,15 @@ export const Lut3d = () => {
     const colorCheckerSnapshot = useCurrentColorCheckerSnapshot();
     useMemo(() => {
         if (colorCheckerSnapshot) {
-            colorCube.project(colorCheckerReference.grid.flatMap(o => o)
+            colorCube.project(colorCheckerReference.grid
+                .flatMap(o => o)
+                .map(reference256 => reference256.map(c => c / 255) as RGB)
                 .map((reference, i) => ({
                     reference,
                     projection: colorCheckerSnapshot[i].color
                 })));
         }
-    }, [colorCheckerReference, colorCheckerSnapshot])
+    }, [colorCheckerReference, colorCheckerSnapshot, colorCube])
 
 
     // Building 3D scene
@@ -49,11 +51,7 @@ export const Lut3d = () => {
 
 
         const geometry = new THREE.BufferGeometry();
-        geometry.addAttribute('position', new THREE.Float32BufferAttribute(colorCube.colors.flatMap((o, i) => [
-            (i % size) / (size - 1) - 0.5,
-            (Math.floor(i / (size)) % size) / (size - 1) - 0.5,
-            Math.floor(i / (size * size)) / (size - 1) - 0.5
-        ]), 3));
+        geometry.addAttribute('position', new THREE.Float32BufferAttribute(colorCube.colors.flatMap(color => color.map(channel => channel - 0.5)), 3));
         geometry.addAttribute('color', new THREE.Float32BufferAttribute(colorCube.colors.flatMap(o => o), 3));
         geometry.computeBoundingSphere();
         const material = new THREE.PointsMaterial({ size: 0.06, vertexColors: THREE.VertexColors });
@@ -67,19 +65,21 @@ export const Lut3d = () => {
 
         renderer.render(scene, camera);
 
-        colorCube.cubeNodes$.subscribe(e => console.log('cubeNodes', e));
-
-        // function frame() {
-        //     colorCube.colors.forEach((color, i) => {
-        //         const nodeObject = colorCubeNodeObjects[i];
-        //         const position = color.map(c => c - 0.5) as [number, number, number];
-        //         nodeObject.position.set(...position);
-        //         renderer.render(scene, camera);
-        //     });
-        //     window.setTimeout(() => window.requestAnimationFrame(frame), 500);
-        // }
-        // window.requestAnimationFrame(frame);
-    }, [three]);
+        colorCube.cubeNodes$.subscribe(e => {
+            console.log('cubeNodes', e);
+            e.nodes.forEach((node, i) => {
+                //@ts-ignore
+                geometry.attributes.position.array[i*3] = node[0] - 0.5;
+                //@ts-ignore
+                geometry.attributes.position.array[i*3 + 1] = node[1] - 0.5;
+                //@ts-ignore
+                geometry.attributes.position.array[i*3 + 2] = node[2] - 0.5;
+            });
+            //@ts-ignore
+            geometry.attributes.position.needsUpdate = true;
+            renderer.render(scene, camera);
+        });
+    }, [three, colorCube]);
 
     return <div ref={mountRef as any} className="lut-3d"></div>
 };

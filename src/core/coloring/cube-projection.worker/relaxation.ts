@@ -4,8 +4,8 @@ import { createCubeHookForRGBValue } from './hooking';
 type Hook = ReturnType<ReturnType<typeof createCubeHookForRGBValue>>;
 
 const relaxation = {
-    homogeneityStrengthFactor: 0.1,
-    targetStrengthFactor: 0.4
+    homogeneityStrengthFactor: 0.2,
+    targetStrengthFactor: 0.001
 };
 
 
@@ -29,21 +29,21 @@ export const step = (cube: { size: number, colors: RGB[] }) => {
                         stepColorChannelNodeRelaxation(cube)([r, g, b], RGB_BLUE_INDEX),
                         r, g, b));
 
-        // Relaxing green channel color backward and forward
-        for (let b = 0; b < cube.size; b++)
-            for (let r = 0; r < cube.size; r++)
-                forwardBackwardBrowsingRange
-                    .forEach(g => setColorAt(cube)(
-                        stepColorChannelNodeRelaxation(cube)([r, g, b], RGB_GREEN_INDEX),
-                        r, g, b));
+        // // Relaxing green channel color backward and forward
+        // for (let b = 0; b < cube.size; b++)
+        //     for (let r = 0; r < cube.size; r++)
+        //         forwardBackwardBrowsingRange
+        //             .forEach(g => setColorAt(cube)(
+        //                 stepColorChannelNodeRelaxation(cube)([r, g, b], RGB_GREEN_INDEX),
+        //                 r, g, b));
 
-        // Relaxing red channel color backward and forward
-        for (let g = 0; g < cube.size; g++)
-            for (let b = 0; b < cube.size; b++)
-                forwardBackwardBrowsingRange
-                    .forEach(r => setColorAt(cube)(
-                        stepColorChannelNodeRelaxation(cube)([r, g, b], RGB_RED_INDEX),
-                        r, g, b));
+        // // Relaxing red channel color backward and forward
+        // for (let g = 0; g < cube.size; g++)
+        //     for (let b = 0; b < cube.size; b++)
+        //         forwardBackwardBrowsingRange
+        //             .forEach(r => setColorAt(cube)(
+        //                 stepColorChannelNodeRelaxation(cube)([r, g, b], RGB_RED_INDEX),
+        //                 r, g, b));
     };
 };
 

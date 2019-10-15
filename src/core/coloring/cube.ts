@@ -30,6 +30,6 @@ export class ColorCube {
     }
 
     public project(mapping: {reference: RGB, projection: RGB}[]) {
-        this.worker.postMessage(mapping);
+        this.worker.postMessage({mapping, cube: {size: this.size, colors: this.colors}});
     }
 }
