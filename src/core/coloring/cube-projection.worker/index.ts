@@ -4,6 +4,7 @@ import { step } from "./relaxation";
 import { Subject, timer } from "rxjs";
 import { switchMap, takeUntil, map } from 'rxjs/operators';
 import config from 'config';
+import triangulate from 'delaunay-triangulate';
 
 const worker: Worker = self as any;
 
@@ -33,3 +34,15 @@ worker.addEventListener('message', (event) => {
 
     projection$.next(event.data);
 });
+
+projection$.subscribe(projection => {
+    const points = projection.mapping.map(o => o.reference);
+    console.log(triangulate(points));
+});
+
+
+/* Algorithmes references:
+- delaunay triangulation
+
+*/
+

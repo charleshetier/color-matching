@@ -61,7 +61,5 @@ export const ViewPort = (props: { children: any }) => {
         <div ref={workspaceRef as any} style={workspaceStyle} className="workspace">
             {props.children}
         </div>
-        
-        <Properties />
     </section>
 };

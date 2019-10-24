@@ -4,6 +4,7 @@ import { ColorChecker, ViewPort, List } from 'components';
 import { useDispatch, useCurrentImage } from 'store';
 import { addImageAsync, addImageCompleted, setCurrentImage } from 'commands';
 import { delay } from 'core';
+import { Properties } from 'components/properties/Properties';
 
 const App: React.FC = () => {
 
@@ -64,7 +65,7 @@ const App: React.FC = () => {
         {backdropImage}
         <ColorChecker />
       </ViewPort>
-
+      <Properties />
     </div>
   );
 }
