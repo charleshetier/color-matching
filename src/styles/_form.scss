@@ -1,10 +1,11 @@
 button {
-    background: rgb(53, 117, 190);
+    background: #222;// rgb(53, 117, 190);
     border: none;
-    padding: 4px 8px;
+    padding: 6px 8px;
     color: #ddd;
     border-radius: 3px;
     box-shadow: 0 0 3px rgba(0,0,0,0.3);
     cursor: pointer;
     margin: 4px 0;
+    width: 100%;
 }

@@ -12,7 +12,7 @@ export const lutContextDefaultValue = {
         cube: new THREE.LineSegments(
             new THREE.EdgesGeometry(new THREE.BoxGeometry(1, 1, 1)),
             new THREE.LineBasicMaterial({
-                color: 0x666666,
+                color: 0x222222,
                 linewidth: 1
             }))
     }
