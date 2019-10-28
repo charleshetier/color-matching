@@ -50,6 +50,7 @@ export const Lut3d = () => {
         scene.add(cubeObject);
 
 
+        // cube nodes
         const geometry = new THREE.BufferGeometry();
         geometry.addAttribute('position', new THREE.Float32BufferAttribute(colorCube.colors.flatMap(color => color.map(channel => channel - 0.5)), 3));
         geometry.addAttribute('color', new THREE.Float32BufferAttribute(colorCube.colors.flatMap(o => o), 3));
@@ -59,12 +60,41 @@ export const Lut3d = () => {
         scene.add(points)
         points.parent = cubeObject;
 
+
+        // arrows
+        const red_arrow = new THREE.ArrowHelper(
+            new THREE.Vector3(1, 0, 0), 
+            new THREE.Vector3(-0.51, -0.51, -0.51),
+            1.1,
+            0xff0000, 0.1);
+        scene.add(red_arrow);
+        red_arrow.parent = cubeObject;
+
+        const green_arrow = new THREE.ArrowHelper(
+            new THREE.Vector3(0, 1, 0), 
+            new THREE.Vector3(-0.51, -0.51, -0.51),
+            1.1,
+            0x00ff00, 0.1);
+        scene.add(green_arrow);
+        green_arrow.parent = cubeObject;
+
+        const blue_arrow = new THREE.ArrowHelper(
+            new THREE.Vector3(0, 0, 1), 
+            new THREE.Vector3(-0.51, -0.51, -0.51),
+            1.1,
+            0x0000ff, 0.1);
+        scene.add(blue_arrow);
+        blue_arrow.parent = cubeObject;
+
+        // Camera
         camera.position.z = 1.5;
         cubeObject.rotation.x = 0.57;
         cubeObject.rotation.y = 1;
 
+        // Rendering
         renderer.render(scene, camera);
 
+        // Changes handling
         colorCube.cubeNodes$.subscribe(e => {
             //console.log('cubeNodes', e);
             e.nodes.forEach((node, i) => {
