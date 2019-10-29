@@ -1,11 +1,8 @@
 import { RGB, RGB_RED_INDEX, RGB_GREEN_INDEX, RGB_BLUE_INDEX } from 'core/model';
-import { createCubeHookForRGBValue } from './hooking';
-import { step } from "./relaxation";
-import { Subject, timer } from "rxjs";
-import { switchMap, takeUntil, map, debounceTime } from 'rxjs/operators';
-import config from 'config';
+import { Subject } from "rxjs";
+import { debounceTime } from 'rxjs/operators';
 import triangulate from 'delaunay-triangulate';
-import { isInTetrahedron, isFlatTetrahedron } from './tetrahedron';
+import { isInTetrahedron, isFlatTetrahedron, toTetrahedronBarycentersNormalizedCoordinate, Tetrahedron } from './tetrahedron';
 
 const worker: Worker = self as any;
 
@@ -16,25 +13,6 @@ const projection$ = new Subject<{
 
 worker.addEventListener('message', (event) => projection$.next(event.data));
 
-
-// Relaxation approach (obsolete)
-// projection$.pipe(
-//     map(projection => ({
-//         projection,
-//         hooks: projection.mapping
-//             .map(colorDistorsion => createCubeHookForRGBValue(projection.cube)(
-//                 colorDistorsion.reference,
-//                 colorDistorsion.projection))
-//     })),
-//     switchMap(projectionHooks => timer(0, config.relaxation.frameDuration).pipe(
-//         takeUntil(projection$),
-//         map(() => projectionHooks)
-//     ))
-// ).subscribe(projectionHooks => {
-//     step(projectionHooks.projection.cube)(projectionHooks.hooks);
-//     worker.postMessage({ nodes: projectionHooks.projection.cube.colors });
-// });
-
 const distance = (p1: RGB, p2: RGB) => Math.sqrt(
     Math.pow(p1[0] - p2[0], 2)
     + Math.pow(p1[1] - p2[1], 2)
@@ -43,12 +21,13 @@ const distance = (p1: RGB, p2: RGB) => Math.sqrt(
 
 // delaunay triangulation approach
 projection$.pipe(debounceTime(500)).subscribe(projection => {
+
     const referencePoints = projection.mapping.map(o => o.reference);
 
     // As some cube points may be outside of the reference tetrahedrons, we need to add extra imaginary extremum points to the triangulation
     // TODO merge reference points to cubeVertices if needed
-    const cubeVertices: RGB[] = [[0, 0, 0], [0, 1, 0], [1, 1, 0], [1, 0, 0], [0, 0, 1], [0, 1, 1], [1, 1, 1], [1, 0, 1]];
-    //const cubeVertices: RGB[] = [[-0.1, -0.1, -0.1], [-0.1, 1.1, -0.1], [1.1, 1.1, -0.1], [1.1, -0.1, -0.1], [-0.1, -0.1, 1.1], [-0.1, 1.1, 1.1], [1.1, 1.1, 1.1], [1.1, -0.1, 1.1]];
+    //const cubeVertices: RGB[] = [[0, 0, 0], [0, 1, 0], [1, 1, 0], [1, 0, 0], [0, 0, 1], [0, 1, 1], [1, 1, 1], [1, 0, 1]];
+    const cubeVertices: RGB[] = [[-0.1, -0.1, -0.1], [-0.1, 1.1, -0.1], [1.1, 1.1, -0.1], [1.1, -0.1, -0.1], [-0.1, -0.1, 1.1], [-0.1, 1.1, 1.1], [1.1, 1.1, 1.1], [1.1, -0.1, 1.1]];
     const finalReferencePoints: RGB[] = [...referencePoints, ...cubeVertices];
 
     /** The vertex indices of the tetrahedrons */
@@ -87,11 +66,8 @@ projection$.pipe(debounceTime(500)).subscribe(projection => {
     const cubeNodeDependanciesVerticesWeights = projection.cube.colors.map((color, i) => {
         const tetrahedronIndex = cubeNodesDependancies[i];
         if (tetrahedronIndex !== undefined) {
-            const distances = tetrahedrons[tetrahedronIndex]
-                .map(tetraPointIndex => finalReferencePoints[tetraPointIndex])
-                .map(tetraPoint => distance(color, tetraPoint));
-            const distanceSum = distances.reduce((a, b) => a + b);
-            return distances.map(distance => distance / distanceSum)
+            const tetrahedron = tetrahedrons[tetrahedronIndex].map(i => finalReferencePoints[i]) as Tetrahedron;
+            return toTetrahedronBarycentersNormalizedCoordinate(tetrahedron, color)
         }
 
         return undefined;

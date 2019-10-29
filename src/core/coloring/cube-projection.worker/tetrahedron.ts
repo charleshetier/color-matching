@@ -19,7 +19,9 @@ bool PointInTetrahedron(v1, v2, v3, v4, p)
 }
 */
 
-const sameSide = (triangle: [RGB, RGB, RGB, RGB], point: RGB) => {
+export type Tetrahedron = [RGB, RGB, RGB, RGB];
+
+const sameSide = (triangle: Tetrahedron, point: RGB) => {
     const [v1, v2, v3, v4] = triangle;
     const normal = cross(
         subtract(v2, v1) as RGB,
@@ -35,7 +37,7 @@ const sameSide = (triangle: [RGB, RGB, RGB, RGB], point: RGB) => {
  * @param tetrahedron
  * @param point 
  */
-export const isInTetrahedron = (tetrahedron: [RGB, RGB, RGB, RGB], point: RGB) => {
+export const isInTetrahedron = (tetrahedron: Tetrahedron, point: RGB) => {
     const [v1, v2, v3, v4] = tetrahedron;
     return sameSide([v1, v2, v3, v4], point) &&
         sameSide([v2, v3, v4, v1], point) &&
@@ -47,7 +49,7 @@ export const isInTetrahedron = (tetrahedron: [RGB, RGB, RGB, RGB], point: RGB) =
  * Determines whether the tetrahedron is flat (ie volume = 0)
  * @param tetrahedron The tetrahedron to test
  */
-export const isFlatTetrahedron = (tetrahedron: [RGB, RGB, RGB, RGB]) => {
+export const isFlatTetrahedron = (tetrahedron: Tetrahedron) => {
 
     // p1 p2 p3 p4 are coplanar
     const [p1, p2, p3, p4] = tetrahedron;
@@ -58,5 +60,32 @@ export const isFlatTetrahedron = (tetrahedron: [RGB, RGB, RGB, RGB]) => {
 
     return dot(p1p4,
         cross(p1p3, p1p2)   // = the normal of the plan
-        ) === 0;
+    ) === 0;
 }
+
+
+/** Converts a point inside tetrahedron into barycenter normalized coordinates. */
+export const toTetrahedronBarycentersNormalizedCoordinate = (tetrahedron: Tetrahedron, point: RGB) => {
+    const [a, b, c, d] = tetrahedron;
+    
+    // Vectors
+    const vap = subtract(point, a) as RGB;
+    const vbp = subtract(point, b) as RGB;
+
+    const vab = subtract(b, a) as RGB;
+    const vac = subtract(c, a) as RGB;
+    const vad = subtract(d, a) as RGB;
+
+    const vbc = subtract(c, b) as RGB;
+    const vbd = subtract(d, b) as RGB;
+
+    // Scalar products
+    const va6 = dot(vbp, cross(vbd, vbc));
+    const vb6 = dot(vap, cross(vac, vad));
+    const vc6 = dot(vap, cross(vad, vab));
+    const vd6 = dot(vap, cross(vab, vac));
+    const v6 = 1 / dot(vab, cross(vac, vad));
+
+    // normalized weights
+    return [va6 * v6, vb6 * v6, vc6 * v6, vd6 * v6];
+};
