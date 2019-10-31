@@ -21,21 +21,7 @@ export const Lut3d = () => {
             renderer.render(scene, camera);
         }
     });
-
-    const colorCheckerReference = useSelector(state => state.colorCheckerReference);
-    const colorCheckerSnapshot = useCurrentColorCheckerSnapshot();
-    useMemo(() => {
-        if (colorCheckerSnapshot) {
-            colorCube.project(colorCheckerReference.grid
-                .flatMap(o => o)
-                .map(reference256 => reference256.map(c => c / 255) as RGB)
-                .map((reference, i) => ({
-                    reference,
-                    projection: colorCheckerSnapshot[i].color.map(c => c / 255) as RGB
-                })));
-        }
-    }, [colorCheckerReference, colorCheckerSnapshot, colorCube])
-
+    
 
     // Building 3D scene
     useEffect(() => {

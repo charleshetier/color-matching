@@ -1,9 +1,11 @@
-import React, { DragEvent, useEffect, useRef } from 'react';
+import React, { DragEvent, useEffect, useContext, useMemo } from 'react';
 import './App.scss';
 import { ColorChecker, ViewPort, List } from 'components';
-import { useDispatch, useCurrentImage } from 'store';
+import { useDispatch, useCurrentImage, useSelector, useCurrentColorCheckerSnapshot } from 'store';
 import { setCurrentImage, addImage } from 'commands';
 import { Properties } from 'components/properties/Properties';
+import { LutContext } from 'components/context';
+import { RGB } from 'core/model';
 
 const App: React.FC = () => {
 
@@ -26,6 +28,22 @@ const App: React.FC = () => {
       .map((o, index) => e.dataTransfer.files[index])
       .forEach(async file => dispatch(addImage, { src: URL.createObjectURL(new Blob([file], { type: file.type })) }));
   }
+
+  // cube projection
+  const { cube: colorCube } = useContext(LutContext);
+  const colorCheckerReference = useSelector(state => state.colorCheckerReference);
+  const colorCheckerSnapshot = useCurrentColorCheckerSnapshot();
+  useMemo(() => {
+    if (colorCheckerSnapshot) {
+      colorCube.project(colorCheckerReference.grid
+        .flatMap(o => o)
+        .map(reference256 => reference256.map(c => c / 255) as RGB)
+        .map((reference, i) => ({
+          reference,
+          projection: colorCheckerSnapshot[i].color.map(c => c / 255) as RGB
+        })));
+    }
+  }, [colorCheckerReference, colorCheckerSnapshot, colorCube])
 
   /** The background image element */
   const backdropImage = currentImage
