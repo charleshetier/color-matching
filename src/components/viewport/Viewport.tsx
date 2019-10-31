@@ -1,7 +1,6 @@
 import React, { createRef, useState, useEffect, useRef } from 'react';
 import { useDragBehavior } from 'core/hooks';
 import { useCurrentImage } from 'store';
-import { Properties } from 'components/properties/Properties';
 
 export const ViewPort = (props: { children: any }) => {
 

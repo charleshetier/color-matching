@@ -1,4 +1,4 @@
-import { UV } from 'core/model';
+import { UV, RGB } from 'core/model';
 import { spyderChecker24Preset } from './color-checker-presets';
 
 export interface Workspace {
@@ -14,7 +14,11 @@ export const initialState = {
         width: number;
         height: number;
         workspace: Workspace,
-        colorChecker: { handles: {h1: UV, h2: UV, h3: UV, h4: UV} }
+        colorChecker: { handles: {h1: UV, h2: UV, h3: UV, h4: UV} },
+        cube: {
+            size: number,
+            colors: RGB[]
+        }
     }[],
     currentImageIndex: undefined as number | undefined
 };

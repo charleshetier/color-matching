@@ -1,4 +1,4 @@
-export { addImageAsync, addImageCompleted } from './add-image.command';
+export { addImage } from './add-image.command';
 export { setCurrentImage } from './set-current-image.command';
 export { setColorCheckerWidgetHandles } from './set-color-checker-widget-handles';
 export { setCurrentImageAsReference } from './set-current-image-as-reference.command';
