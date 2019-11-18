@@ -7,6 +7,8 @@ import { getGridData } from 'components/color-checker/grid';
 import { asyncMiddleWare } from './async-middleware';
 
 export type State = typeof initialState;
+
+/** The function type of a redux action */
 type ActionHandler = (state: State, payload: any) => (State | Promise<State>);
 
 /**  The Redux store of the application. */
@@ -19,13 +21,14 @@ export const store = createStore(
 /** Store dispatcher */
 export const useDispatch = () => {
     const reduxDispatch = useReduxDispatch();
-    return <THandler extends ActionHandler>(actionHandler: THandler, payload?: Parameters<THandler>[1]) => {
+
+    return useMemo(() => <THandler extends ActionHandler>(actionHandler: THandler, payload?: Parameters<THandler>[1]) => {
         const type = actionHandler.name;// Object.keys(actionHandlers).filter(key => (actionHandlers as any /* TODO fix this!*/)[key] === actionHandler);
         const newPayload = reduxDispatch({ ...payload, type });
 
         return (newPayload as any).__async || Promise.resolve(newPayload);
-    }
-}
+    }, [reduxDispatch]);
+};
 
 /** Store projection */
 export const useSelector = <TResult>(selector: (state: State) => TResult) => useReduxSelector(selector) as TResult;
@@ -40,28 +43,30 @@ export const useCurrentColorCheckerSnapshot = () => {
 
     // Current image from redux store
     const currentImage = useCurrentImage();
+    const currentImageProperties = !currentImage ? undefined : currentImage.properties;
+    const colorCheckerHandles = !currentImage ? undefined : currentImage.colorChecker.handles;
     const colorCheckerReference = useSelector(state => state.colorCheckerReference);
 
     // Fetching snapshot or retrieve it from memoization
     const snapshot = useMemo(() => {
-        if (currentImage) {
+        if (currentImageProperties && colorCheckerHandles) {
             // Buffer Image canvas creation
             const img = document.createElement('IMG') as HTMLImageElement;
             const canvasElement = document.createElement('CANVAS') as HTMLCanvasElement;
             const canvasContext = canvasElement.getContext('2d')!;
-            img.src = currentImage.src;
-            canvasElement.width = currentImage.width;
-            canvasElement.height = currentImage.height;
+            img.src = currentImageProperties.src;
+            canvasElement.width = currentImageProperties.width;
+            canvasElement.height = currentImageProperties.height;
             canvasContext.drawImage(img, 0, 0);
 
             // Computing uv coordinate of each grid items
-            const items = getGridData(colorCheckerReference.grid, currentImage.colorChecker.handles);
+            const items = getGridData(colorCheckerReference.grid, colorCheckerHandles);
 
             // Color extraction from current imate at each grid item position
             const itemsSnapshot = items.map(cell => {
                 const data = canvasContext.getImageData(
-                    cell.uv.u * currentImage.width,
-                    cell.uv.v * currentImage.height,
+                    cell.uv.u * currentImageProperties.width,
+                    cell.uv.v * currentImageProperties.height,
                     1,
                     1).data.slice(0, 3); // TODO: extract a range of pixel instead
                 const color = [data[0], data[1], data[2]] as [number, number, number];
@@ -70,7 +75,7 @@ export const useCurrentColorCheckerSnapshot = () => {
 
             return itemsSnapshot;
         }
-    }, [currentImage, colorCheckerReference]);
+    }, [currentImageProperties, colorCheckerReference, colorCheckerHandles]);
 
     return snapshot;
 };

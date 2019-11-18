@@ -9,9 +9,9 @@ export const List = (props: {
 
   return <section className="list">
     <ul>
-      {images.map(image => <li key={image.src}>
+      {images.map(image => <li key={image.properties.src}>
         <img alt="sample" 
-          src={image.src} 
+          src={image.properties.src} 
           onClick={() => props.onSelectionChange(images.indexOf(image))} />
       </li>)}
     </ul>

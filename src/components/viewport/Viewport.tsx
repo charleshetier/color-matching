@@ -23,14 +23,14 @@ export const ViewPort = (props: { children: any }) => {
 
     const viewPortRef = createRef<HTMLElement>();
 
-    const width = currentImage ? currentImage.width * workspace.scale : 600;
-    const height = currentImage ? currentImage.height * workspace.scale : 600;
+    const width = currentImage ? currentImage.properties.width * workspace.scale : 600;
+    const height = currentImage ? currentImage.properties.height * workspace.scale : 600;
 
     useEffect(() => {
         if (viewPortRef.current && (viewPortRef.current.clientWidth !== workspace.viewPortWidth || viewPortRef.current.clientHeight !== workspace.viewPortHeight)) {
             setWorkspace({ ...workspace, viewPortWidth: viewPortRef.current.clientWidth, viewPortHeight: viewPortRef.current.clientHeight });
         }
-    });
+    }, [viewPortRef, workspace]);
 
     const viewPortOrigin = {
         x: workspace.viewPortWidth / 2,
@@ -47,8 +47,8 @@ export const ViewPort = (props: { children: any }) => {
     return <section ref={viewPortRef} className="viewport">
         {currentImage ? <ul className="info">
             <li style={{borderTop: 'solid 1px #555', margin: '5px 0'}}></li>
-            <li>{currentImage.width} x {currentImage.height}</li>
-            <li>{currentImage.src}</li>
+            <li>{currentImage.properties.width} x {currentImage.properties.height}</li>
+            <li>{currentImage.properties.src}</li>
             <li style={{borderTop: 'solid 1px #555', margin: '5px 0'}}></li>
             <li>h1<small>uv</small> [ {currentImage.colorChecker.handles.h1.u.toFixed(2)}, {currentImage.colorChecker.handles.h1.v.toFixed(2)} ]</li>
             <li>h2<small>uv</small> [ {currentImage.colorChecker.handles.h2.u.toFixed(2)}, {currentImage.colorChecker.handles.h2.v.toFixed(2)} ]</li>

@@ -7,12 +7,17 @@ export interface Workspace {
     scale: number;
 }
 
+/**
+ * The initial redux state.
+ */
 export const initialState = {
     colorCheckerReference: { grid: spyderChecker24Preset },
     images: [] as {
-        src: string,
-        width: number;
-        height: number;
+        properties: {
+            src: string,
+            width: number,
+            height: number
+        },
         workspace: Workspace,
         colorChecker: { handles: {h1: UV, h2: UV, h3: UV, h4: UV} },
         cube: {

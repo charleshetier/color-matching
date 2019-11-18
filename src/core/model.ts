@@ -4,6 +4,7 @@ export interface UV {
 }
 
 export type RGB = [number, number, number];
+export type RGB256 = [number, number, number];
 export type RGBIndices = [number, number, number];
 
 export const RGB_RED_INDEX = 0;

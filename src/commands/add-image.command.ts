@@ -19,9 +19,11 @@ export const addImage = async (state: State, payload: { src: string }): Promise<
         ...state,
         currentImageIndex: state.images.length, // Sets the added image as selected one
         images: [...state.images, {
-            src: payload.src,
-            width: img.naturalWidth,
-            height: img.naturalHeight,
+            properties: {
+                src: payload.src,
+                width: img.naturalWidth,
+                height: img.naturalHeight,
+            },
             workspace: { x: 0, y: 0, scale: 1 },
             colorChecker: {
                 handles: {

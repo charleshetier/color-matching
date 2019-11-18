@@ -18,7 +18,7 @@ export const Widget = () => {
     const [realTimeHandles, setRealTimeHandles] = useState<typeof currentImage.colorChecker.handles & { src: string } | undefined>();
 
     /** The handles of the color checker */
-    const handles = realTimeHandles && realTimeHandles.src === currentImage.src
+    const handles = realTimeHandles && realTimeHandles.src === currentImage.properties.src
         ? realTimeHandles
         : currentImage.colorChecker.handles;
 
@@ -36,16 +36,16 @@ export const Widget = () => {
 
         {/* Handles */}
         <Handle label="h1" uv={handles.h1}
-            onDrag={uv => setRealTimeHandles({ ...handles, h1: uv, src: currentImage.src })}
+            onDrag={uv => setRealTimeHandles({ ...handles, h1: uv, src: currentImage.properties.src })}
             onDrop={uv => dispatch(setColorCheckerWidgetHandles, { ...handles, h1: uv })} />
         <Handle label="h2" uv={handles.h2}
-            onDrag={uv => setRealTimeHandles({ ...handles, h2: uv, src: currentImage.src })}
+            onDrag={uv => setRealTimeHandles({ ...handles, h2: uv, src: currentImage.properties.src })}
             onDrop={uv => dispatch(setColorCheckerWidgetHandles, { ...handles, h2: uv })} />
         <Handle label="h3" uv={handles.h3}
-            onDrag={uv => setRealTimeHandles({ ...handles, h3: uv, src: currentImage.src })}
+            onDrag={uv => setRealTimeHandles({ ...handles, h3: uv, src: currentImage.properties.src })}
             onDrop={uv => dispatch(setColorCheckerWidgetHandles, { ...handles, h3: uv })} />
         <Handle label="h4" uv={handles.h4}
-            onDrag={uv => setRealTimeHandles({ ...handles, h4: uv, src: currentImage.src })}
+            onDrag={uv => setRealTimeHandles({ ...handles, h4: uv, src: currentImage.properties.src })}
             onDrop={uv => dispatch(setColorCheckerWidgetHandles, { ...handles, h4: uv })} />
 
         {/* Grid Lines */}
@@ -77,13 +77,13 @@ const Handle = (props: {
     const ref = useDragBehavior<SVGCircleElement>(useRef(), (e, context: typeof currentImage) => {
 
         if (context) {
-            if (!context.width || !context.height) {
+            if (!context.properties.width || !context.properties.height) {
                 throw new Error('width or height state should be greater than 0');
             }
 
             (e.upEvent ? props.onDrop : props.onDrag)({
-                u: props.uv.u + e.clientDelta.x / (context.width * context.workspace.scale),
-                v: props.uv.v + e.clientDelta.y / (context.height * context.workspace.scale)
+                u: props.uv.u + e.clientDelta.x / (context.properties.width * context.workspace.scale),
+                v: props.uv.v + e.clientDelta.y / (context.properties.height * context.workspace.scale)
             });
         }
 
@@ -91,7 +91,7 @@ const Handle = (props: {
 
     return <g className="handle">
         <circle ref={ref as any} className="grabme" r={8 * currentImage!.workspace.scale} cx={`${props.uv.u * 100}%`} cy={`${props.uv.v * 100}%`}></circle>
-        <g className="cursor" transform={`translate(${props.uv.u * currentImage!.width * currentImage!.workspace.scale},${props.uv.v * currentImage!.height * currentImage!.workspace.scale})`}>
+        <g className="cursor" transform={`translate(${props.uv.u * currentImage!.properties.width * currentImage!.workspace.scale},${props.uv.v * currentImage!.properties.height * currentImage!.workspace.scale})`}>
             <g>
                 <line x1="10" x2="15"></line>
                 <line x1="-10" x2="-15"></line>

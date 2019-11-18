@@ -3,12 +3,14 @@ import { Subject } from "rxjs";
 import { debounceTime } from 'rxjs/operators';
 import triangulate from 'delaunay-triangulate';
 import { isInTetrahedron, isFlatTetrahedron, toTetrahedronBarycentersNormalizedCoordinate, Tetrahedron } from './tetrahedron';
+import { createNeutralCube } from 'core/coloring/cube-factory';
 
 const worker: Worker = self as any;
 
 const projection$ = new Subject<{
     mapping: { reference: RGB, projection: RGB }[],
-    cube: { size: number, colors: RGB[] }
+    cube: { size: number },
+    token: number   // correlation id
 }>();
 
 worker.addEventListener('message', (event) => projection$.next(event.data));
@@ -16,6 +18,7 @@ worker.addEventListener('message', (event) => projection$.next(event.data));
 // delaunay triangulation approach
 projection$.pipe(debounceTime(500)).subscribe(projection => {
 
+    const neutralCubeColors = createNeutralCube(projection.cube.size)
     const referencePoints = projection.mapping.map(o => o.reference);
 
     // As some cube points may be outside of the reference tetrahedrons, we need to add extra imaginary extremum points to the triangulation
@@ -34,7 +37,7 @@ projection$.pipe(debounceTime(500)).subscribe(projection => {
         .map(tetraIndices => tetraIndices.map(i => finalReferencePoints[i]) as Tetrahedron);
 
     /** Projection of the cube nodes to tetra index */
-    const cubeNodesDependancies = projection.cube.colors.map(node => {
+    const cubeNodesDependancies = neutralCubeColors.map(node => {
 
         // Finding the tetrahedron in which the point is (-1 if none found)
         const tetraIndexAroundNode = tetrahedrons.findIndex(vertices => isInTetrahedron(vertices, node));
@@ -56,7 +59,7 @@ projection$.pipe(debounceTime(500)).subscribe(projection => {
     });
 
     /** For each cube node, the weights to each vertex of the tetrahedron wrapping the cube node */
-    const cubeNodeDependanciesVerticesWeights = projection.cube.colors.map((color, i) => {
+    const cubeNodeDependanciesVerticesWeights = neutralCubeColors.map((color, i) => {
         const tetraIndex = cubeNodesDependancies[i];
         if (tetraIndex !== undefined) {
             return toTetrahedronBarycentersNormalizedCoordinate(tetrahedrons[tetraIndex], color)
@@ -105,10 +108,10 @@ projection$.pipe(debounceTime(500)).subscribe(projection => {
             }
 
             // default cube value
-            return projection.cube.colors[i];
+            return neutralCubeColors[i];
         });
 
     // Cube nodes projection publication
-    worker.postMessage({ nodes: cubeNodesProjection });
+    worker.postMessage({ nodes: cubeNodesProjection, token: projection.token });
 });
 

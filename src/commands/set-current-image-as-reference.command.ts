@@ -16,9 +16,9 @@ export const setCurrentImageAsReference = (state: State): State => {
         const img = document.createElement('IMG') as HTMLImageElement;
         const canvasElement = document.createElement('CANVAS') as HTMLCanvasElement;
         const canvasContext = canvasElement.getContext('2d')!;
-        img.src = currentImage.src;
-        canvasElement.width = currentImage.width;
-        canvasElement.height = currentImage.height;
+        img.src = currentImage.properties.src;
+        canvasElement.width = currentImage.properties.width;
+        canvasElement.height = currentImage.properties.height;
         canvasContext.drawImage(img, 0, 0);
 
         // Computing uv coordinate of each grid items
@@ -27,8 +27,8 @@ export const setCurrentImageAsReference = (state: State): State => {
         // Color extraction from current imate at each grid item position
         const itemsSnapshot = items.map(cell => {
             const data = canvasContext.getImageData(
-                cell.uv.u * currentImage.width,
-                cell.uv.v * currentImage.height,
+                cell.uv.u * currentImage.properties.width,
+                cell.uv.v * currentImage.properties.height,
                 1,
                 1).data.slice(0, 3); // TODO: extract a range of pixel instead
             const color = [data[0], data[1], data[2]] as [number, number, number];

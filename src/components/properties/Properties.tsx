@@ -54,7 +54,7 @@ export const Properties = () => {
 
             <div>Export color checker projection:</div>
             {/* <div><button type="button" onClick={async () => console.log(await dialog.showSaveDialog({}))}>Reference -> live projection mapping...</button></div> */}
-            <div><button type="button" onClick={() => saveLUT(colorCheckerReference.grid.flatMap(row => row), snapshot!.map(o => o.color))}>Reference -> live projection mapping...</button></div>
+            <div><button type="button" onClick={() => saveLUT(currentImage.cube)}>Reference -> live projection mapping...</button></div>
             <div><button type="button">Live projection -> reference mapping...</button></div>
         </div>
     </aside>;

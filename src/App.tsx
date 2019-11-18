@@ -1,11 +1,9 @@
-import React, { DragEvent, useEffect, useContext, useMemo } from 'react';
+import React, { DragEvent, useEffect, useMemo } from 'react';
 import './App.scss';
 import { ColorChecker, ViewPort, List } from 'components';
-import { useDispatch, useCurrentImage, useSelector, useCurrentColorCheckerSnapshot } from 'store';
-import { setCurrentImage, addImage } from 'commands';
+import { useDispatch, useCurrentImage, useCurrentColorCheckerSnapshot } from 'store';
+import { setCurrentImage, addImage, projectCube } from 'commands';
 import { Properties } from 'components/properties/Properties';
-import { LutContext } from 'components/context';
-import { RGB } from 'core/model';
 
 const App: React.FC = () => {
 
@@ -16,7 +14,7 @@ const App: React.FC = () => {
   useEffect(() => {
     dispatch(addImage, { src: './samples/sample1.jpg' })
       .then(() => dispatch(addImage, { src: './samples/sample2.jpg' }))
-  }, [addImage]);
+  }, [dispatch]);
 
   /**
    * Handles the drop file event
@@ -30,24 +28,21 @@ const App: React.FC = () => {
   }
 
   // cube projection
-  const { cube: colorCube } = useContext(LutContext);
-  const colorCheckerReference = useSelector(state => state.colorCheckerReference);
   const colorCheckerSnapshot = useCurrentColorCheckerSnapshot();
+
+  // Mise à jour de la projection du cube si nécessaire.
+  //const cubeColors = !currentImage ? undefined : currentImage.cube.colors;
   useMemo(() => {
     if (colorCheckerSnapshot) {
-      colorCube.project(colorCheckerReference.grid
-        .flatMap(o => o)
-        .map(reference256 => reference256.map(c => c / 255) as RGB)
-        .map((reference, i) => ({
-          reference,
-          projection: colorCheckerSnapshot[i].color.map(c => c / 255) as RGB
-        })));
+      dispatch(projectCube, {
+        projection: colorCheckerSnapshot.map(snapshot => snapshot.color)
+      });
     }
-  }, [colorCheckerReference, colorCheckerSnapshot, colorCube])
+  }, [colorCheckerSnapshot, dispatch])
 
   /** The background image element */
   const backdropImage = currentImage
-    ? <img alt="sample" src={currentImage.src} />
+    ? <img alt="sample" src={currentImage.properties.src} />
     : null;
 
   // Final html rendering
